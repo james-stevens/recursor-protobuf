@@ -1,4 +1,4 @@
-OBJS=dnsmessage.pb-c.o
+OBJS=dnsmessage.pb-c.o protobuf2json.o
 PDNS_SRC=https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
 all: $(OBJS)
@@ -13,6 +13,8 @@ dnsmessage.pb-c.h: dnsmessage.proto
 	protoc --c_out=. dnsmessage.proto
 
 dnsmessage.pb-c.o: dnsmessage.pb-c.c dnsmessage.pb-c.h
+
+protobuf2json.o: protobuf2json.c protobuf2json.h
 
 dnsmessage.proto:
 	wget -nv $(PDNS_SRC)
