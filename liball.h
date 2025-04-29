@@ -1,3 +1,6 @@
+/*******************************************************************
+*    (c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
+********************************************************************/
 #include <time.h>
 #include <limits.h>
 #include <netinet/in.h>

@@ -1,3 +1,6 @@
+#
+# (c) Copyright 2025 JRCS Ltd - All Right Reserved
+#
 CC=gcc
 CFLAGS=-Wall -O2
 LDFLAGS=-lprotobuf-c -ljansson
