@@ -6,9 +6,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #include "ipall.h"
 #include "log_message.h"
+
+
 
 void * eolncpy(const char * file,const int line, char * dst, char * src,int size_of)
 {
@@ -59,6 +62,7 @@ static char ip6[INET6_ADDRSTRLEN+10];
 }
 
 
+
 int set_blocking(int fd,int blocking)
 {
 int flags = fcntl(fd, F_GETFL);
@@ -67,3 +71,52 @@ int flags = fcntl(fd, F_GETFL);
     return fcntl(fd,F_SETFL,flags);
 }
 
+
+
+uint8_t hexchar(char ch)
+{
+    if (ch>='a') ch = toupper(ch);
+    if (ch > '9') return (ch - 'A' + 10); else return ch - '0';
+}
+
+
+
+uint64_t xtoi(char * hex)
+{
+uint64_t x = 0;
+char * cp;
+
+    for(cp=hex;*cp;cp++) x = (x << 4) + hexchar(*cp);
+    return x;
+}
+
+
+
+int decode_net_addr(struct net_addr_st *ni,char * addr_in)
+{
+char addr[50],*a;
+int d=0,c=0;
+
+    logmsg(MSG_DEBUG,"decode_net_addr '%s'\n",addr_in);
+    memset(ni,0,sizeof(struct net_addr_st));
+    if (BLANK(addr_in)) return -1;
+
+    STRCPY(addr,addr_in);
+    for(a=addr;*a;a++) { if (*a=='.') d++; if (*a==':') c++; }
+
+    if (d>c) {
+        if ((a = strchr(addr,':'))!=NULL) { *a=0; a++; }
+        if (inet_pton(AF_INET,addr,&ni->addr.v4) == 1) {
+            logmsg(MSG_DEBUG,"decode_net_addr IPv4=%s\n",ipchar(ni->addr.v4));
+            if (a) ni->port = atoi(a);
+            ni->is_type=4; return 0; }
+    }
+    else if (c>d) {
+        if ((a = strchr(addr,'.'))!=NULL) { *a=0; a++; }
+        if (inet_pton(AF_INET6,addr,&ni->addr.v6) == 1) {
+            logmsg(MSG_DEBUG,"decode_net_addr IPv6=%s\n",ip6char(&ni->addr.v6));
+            if (a) ni->port = atoi(a);
+            ni->is_type=6; return 0; }
+        }
+    return -1;
+}
