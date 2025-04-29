@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <signal.h>
 
-
 #include "log_message.h"
+#include "socket_server.h"
+
+#define DEFAULT_PORT 7011
 
 int interupt = 0;
 void sig(int s) { interupt=s; }
@@ -24,37 +26,57 @@ int prevent_fork = 0;
 struct net_addr_st from_ni;
 char from_path[PATH_MAX];
 
-    memset(&from_ni,0,sizeof(struct net_addr_st));
+	memset(&from_ni,0,sizeof(struct net_addr_st));
 
-    time_t now = time(NULL);
+	time_t now = time(NULL);
 
-    memset(&sa,0,sizeof(sa));
-    sa.sa_handler = sig;
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler = sig;
 
-    signal(SIGPIPE,SIG_IGN);
-    sigaction(SIGINT,&sa,NULL);
-    sigaction(SIGTERM,&sa,NULL);
+	signal(SIGPIPE,SIG_IGN);
+	sigaction(SIGINT,&sa,NULL);
+	sigaction(SIGTERM,&sa,NULL);
 
-    sa.sa_flags |= SA_RESTART;
-    sigaction(SIGHUP,&sa,NULL);
+	sa.sa_flags |= SA_RESTART;
+	sigaction(SIGHUP,&sa,NULL);
 
-    init_log(argv[0],level);
+	init_log(argv[0],level);
 
-    int opt;
-    while((opt=getopt(argc,argv,"l:Dc:f:t:L:d:U:")) > 0)
-        {
-        switch(opt)
-            {
-            default  : usage(); exit(-1); break;
-            case 'l' : level = LEVEL(optarg); init_log(argv[0],level); break;
-            case 'D' : prevent_fork = 1; break;
-            case 'f' : if (optarg[0]=='/') STRCPY(from_path,optarg); else decode_net_addr(&from_ni,optarg); break;
-            }
+	int opt;
+	while((opt=getopt(argc,argv,"l:Dc:f:t:L:d:U:")) > 0)
+		{
+		switch(opt)
+			{
+			default  : usage(); exit(-1); break;
+			case 'l' : level = LEVEL(optarg); init_log(argv[0],level); break;
+			case 'D' : prevent_fork = 1; break;
+			case 'f' : if (optarg[0]=='/') STRCPY(from_path,optarg);
+					   else {
+						  if (decode_net_addr(&from_ni,optarg,DEFAULT_PORT) < 0) {
+							  logmsg(MSG_ERROR,"ERROR: Invalid from address '%s'\n",optarg);
+							  usage();
+							  }
+						  }
+					   break;
+			}
 		}
+
+	int sock = 0;
+	if (from_ni.is_type) sock = tcp_server_any(&from_ni,1);
+	if (from_path[0]) {
+		unlink(from_path);
+		sock = init_unix_server(from_path,50,1);
+		}
+
+	if (!sock) {
+		logmsg(MSG_ERROR,"ERROR: Failed to open listening socket");
+		usage(); }
 
 	while(!interupt) {
 		now = time(NULL);
 		}
 
+	shutdown(sock,SHUT_RDWR); close(sock);
+	if (from_path[0]) unlink(from_path);
 	return 0;
 }

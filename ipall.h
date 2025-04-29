@@ -1,5 +1,5 @@
 /*******************************************************************
-*    (c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
+*	(c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
 ********************************************************************/
 #ifndef _INCLUDE_IPALL_H_
 #define _INCLUDE_IPALL_H_
@@ -8,12 +8,12 @@
 #include <netinet/in.h>
 
 struct net_addr_st {
-    uint16_t port;
-    uint8_t is_type;
-    union addr_u {
+	uint16_t port;
+	uint8_t is_type;
+	union addr_u {
 		in_addr_t v4;
 		struct in6_addr v6;
 		} addr;
-    };
+	};
 
 #endif // _INCLUDE_LIBALL_H_

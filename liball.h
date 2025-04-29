@@ -22,4 +22,4 @@ extern void mksin6(struct sockaddr_in6 *sin,struct in6_addr *addr, unsigned shor
 extern char * ip6char(struct in6_addr * addr);
 extern char * ipchar(in_addr_t addr);
 extern uint64_t xtoi(char * hex);
-int decode_net_addr(struct net_addr_st *ni,char * addr_in);
+int decode_net_addr(struct net_addr_st *ni,char * addr_in, uint16_t default_port);

@@ -1,5 +1,5 @@
 /*******************************************************************
-*    (c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
+*	(c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
 ********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ struct linger ling;
 	error_exit( bind(sock,(struct sockaddr *)&ad,sizeof(ad)) , "TCP bind");
 	error_exit( listen(sock,quelen) , "listen");
 
-    set_blocking(sock,blocking);
+	set_blocking(sock,blocking);
 
 	return sock;
 }
@@ -57,17 +57,17 @@ int sock;
 unsigned int len = strlen(sock_file);
 struct sockaddr_un server;
 
-    if (len > sizeof(server.sun_path)) return -1;
+	if (len > sizeof(server.sun_path)) return -1;
 
-    memset((char *) &server, 0, sizeof(server));
-    server.sun_family = AF_UNIX;
+	memset((char *) &server, 0, sizeof(server));
+	server.sun_family = AF_UNIX;
 
-    STRCPY(server.sun_path, sock_file);
-    if (server.sun_path[0]=='@') server.sun_path[0] = 0;
+	STRCPY(server.sun_path, sock_file);
+	if (server.sun_path[0]=='@') server.sun_path[0] = 0;
 
-    error_exit( ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) , "socket");
-    error_exit( bind(sock,(struct sockaddr *) &server, (len + sizeof(sa_family_t))) , "bind");
-    error_exit( listen(sock,quelen) , "listen");
+	error_exit( ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) , "socket");
+	error_exit( bind(sock,(struct sockaddr *) &server, (len + sizeof(sa_family_t))) , "bind");
+	error_exit( listen(sock,quelen) , "listen");
 
 	set_blocking(sock,blocking);
 
@@ -83,12 +83,12 @@ int init_dgram_server(char * sock_file,int blocking)
 int sock;
 struct sockaddr_un server;
 
-    memset((char *) &server, 0, sizeof(server));
-    server.sun_family = AF_UNIX;
-    STRNCPY(server.sun_path, sock_file, sizeof(server.sun_path)-1);
+	memset((char *) &server, 0, sizeof(server));
+	server.sun_family = AF_UNIX;
+	STRNCPY(server.sun_path, sock_file, sizeof(server.sun_path)-1);
 
-    error_exit( ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) , "socket");
-    error_exit( bind(sock,(struct sockaddr *) &server, sizeof(struct sockaddr_un)) , "bind");
+	error_exit( ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) , "socket");
+	error_exit( bind(sock,(struct sockaddr *) &server, sizeof(struct sockaddr_un)) , "bind");
 
 	set_blocking(sock,blocking);
 
