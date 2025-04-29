@@ -1,4 +1,5 @@
 *.o
+recursor-protobuf
 dnsmessage.proto
 dnsmessage.pb-c.c
 dnsmessage.pb-c.h
