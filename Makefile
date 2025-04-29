@@ -24,7 +24,7 @@ dnsmessage.pb-c.o: dnsmessage.pb-c.c dnsmessage.pb-c.h
 protobuf2json.o: protobuf2json.c protobuf2json.h
 
 dnsmessage.proto:
-	wget -nv $(PDNS_SRC)
+	curl $(PDNS_SRC) > dnsmessage.proto
 
 socket_server.o: socket_server.c socket_server.h liball.h ipall.h log_message.h
 

@@ -12,7 +12,7 @@ WORK IN PROGRESS - Don't even attempt to expect this to work, yet
 Protobuf to parse
 - https://github.com/PowerDNS/pdns/blob/master/pdns/dnsmessage.proto
 
-Downloads actual `.proto` file from here
+Downloads `dnsmessage.proto` file itself from here, using `curl`
 - https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
 
