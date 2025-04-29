@@ -1,0 +1,3 @@
+*.o
+dnsmessage.pb-c.c
+dnsmessage.pb-c.h
