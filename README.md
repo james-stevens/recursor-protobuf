@@ -12,6 +12,10 @@ WORK IN PROGRESS - Don't even attempt to expect this to work, yet
 https://github.com/PowerDNS/pdns/blob/master/pdns/dnsmessage.proto
 https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
-protobuf-c-1.4.1-r2
-protobuf-c-compiler-1.4.1-r2
-protobuf-c-dev-1.4.1-r2
+
+Before you start, install these
+- protobuf-c
+- protobuf-c-compiler
+- protobuf-c-dev
+- jansson-dev
+- jansson
