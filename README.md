@@ -23,4 +23,4 @@ Before you start, install these
 - jansson
 - jansson-dev
 
-I compiled with `gcc` on Linux (I used Alpine v3.18), best of luck with anything else.
+I compiled with `gcc` on Linux (Alpine v3.18), best of luck with anything else.
