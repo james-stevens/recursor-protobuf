@@ -22,3 +22,5 @@ Before you start, install these
 - protobuf-c-dev
 - jansson
 - jansson-dev
+
+I compiled with `gcc` on Linux (I used Alpine v3.18), good luck with anything else.
