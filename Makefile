@@ -11,7 +11,7 @@ PDNS_SRC=https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/
 all: recursor-protobuf
 
 clean:
-	rm -f $(OBJS) dnsmessage.pb-c.c dnsmessage.pb-c.h dnsmessage.proto
+	rm -f $(OBJS) dnsmessage.pb-c.c dnsmessage.pb-c.h
 
 dnsmessage.pb-c.c: dnsmessage.proto
 	protoc --c_out=. dnsmessage.proto
