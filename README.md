@@ -16,11 +16,11 @@ Downloads `dnsmessage.proto` file itself from here, using `curl`
 - https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
 
-Before you start, install these
+If you want to compile this, you will need to install these
 - protobuf-c
 - protobuf-c-compiler
 - protobuf-c-dev
 - jansson
 - jansson-dev
 
-I compiled with `gcc` on Linux (Alpine v3.18), best of luck with anything else.
+I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
