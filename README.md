@@ -24,3 +24,33 @@ If you want to compile this, you will need to install these
 - jansson-dev
 
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
+
+
+# Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
+
+```
+# |------------------------------------|----------------------|
+# | Data frame length                  | 4 bytes              |  
+# |------------------------------------|----------------------|
+# | Control frame length               | 4 bytes              |
+# |------------------------------------|----------------------|
+# | Control frame type                 | 4 bytes              |
+# |------------------------------------|----------------------|
+# | Control frame content type         | 4 bytes (optional)   |
+# |------------------------------------|----------------------|
+# | Control frame content type length  | 4 bytes (optional)   |
+# |------------------------------------|----------------------|
+# | Content type payload               | xx bytes             |     
+# |------------------------------------|----------------------|
+```
+
+# Frame Streams Data Frame Format
+
+```
+|------------------------------------|----------------------|
+| Data frame length                  | 4 bytes              |
+|------------------------------------|----------------------|
+| Payload - Protobuf                 | xx bytes             |
+|------------------------------------|----------------------|
+
+```
