@@ -26,8 +26,8 @@ If you want to compile this, you will need to install these
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
 
 
-# Frame Stream Format
-## Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
+## Frame Stream Format
+### Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
 
 ```
 |------------------------------------|----------------------|
@@ -45,7 +45,7 @@ I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luc
 |------------------------------------|----------------------|
 ```
 
-## Frame Streams Data Frame Format
+### Frame Streams Data Frame Format
 
 ```
 |------------------------------------|----------------------|
