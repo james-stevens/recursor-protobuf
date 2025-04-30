@@ -26,25 +26,26 @@ If you want to compile this, you will need to install these
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
 
 
-# Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
+# Frame Stream Format
+## Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
 
 ```
-# |------------------------------------|----------------------|
-# | Data frame length                  | 4 bytes              |  
-# |------------------------------------|----------------------|
-# | Control frame length               | 4 bytes              |
-# |------------------------------------|----------------------|
-# | Control frame type                 | 4 bytes              |
-# |------------------------------------|----------------------|
-# | Control frame content type         | 4 bytes (optional)   |
-# |------------------------------------|----------------------|
-# | Control frame content type length  | 4 bytes (optional)   |
-# |------------------------------------|----------------------|
-# | Content type payload               | xx bytes             |     
-# |------------------------------------|----------------------|
+|------------------------------------|----------------------|
+| Data frame length                  | 4 bytes              |  
+|------------------------------------|----------------------|
+| Control frame length               | 4 bytes              |
+|------------------------------------|----------------------|
+| Control frame type                 | 4 bytes              |
+|------------------------------------|----------------------|
+| Control frame content type         | 4 bytes (optional)   |
+|------------------------------------|----------------------|
+| Control frame content type length  | 4 bytes (optional)   |
+|------------------------------------|----------------------|
+| Content type payload               | xx bytes             |     
+|------------------------------------|----------------------|
 ```
 
-# Frame Streams Data Frame Format
+## Frame Streams Data Frame Format
 
 ```
 |------------------------------------|----------------------|
@@ -52,5 +53,4 @@ I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luc
 |------------------------------------|----------------------|
 | Payload - Protobuf                 | xx bytes             |
 |------------------------------------|----------------------|
-
 ```
