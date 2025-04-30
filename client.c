@@ -3,6 +3,7 @@
 #include <arpa/nameser.h>
 
 #include "log_message.h"
+#include "dnsmessage.pb-c.h"
 #include "client.h"
 
 #define MAXBUF 100000
@@ -41,6 +42,10 @@ int len = buf->len+buf->frame;
 	if ((!buf->len)||(len > buf->pos)) {
 		logmsg(MSG_ERROR,"ERROR: process_packet fail, len=%d, pos=%d\n",len,buf->pos);
 		return -1; }
+
+	PBDNSMessage * pdnsmsg = pbdnsmessage__unpack(NULL,buf->len,buf->data+buf->frame);
+	logmsg(MSG_DEBUG,"PBDNSMessage type=%d, inbytes=%lu\n",pdnsmsg->type,pdnsmsg->inbytes);
+	pbdnsmessage__free_unpacked(pdnsmsg,NULL);
 
 	memmove(buf->data,buf->data+len,buf->pos-len);
 	buf->pos -= len;
