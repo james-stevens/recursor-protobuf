@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <sys/select.h>
 
 #include "ipall.h"
 #include "log_message.h"
@@ -101,8 +102,15 @@ int d=0,c=0;
 	memset(ni,0,sizeof(struct net_addr_st));
 	if (BLANK(addr_in)) return -1;
 
+	if (addr_in[0]=='/') {
+		ni->is_type=1;
+		STRCPY(ni->addr.path,addr_in);
+		return 0;
+		}
+
 	STRCPY(addr,addr_in);
 	ni->port = default_port;
+
 	for(a=addr;*a;a++) { if (*a=='.') d++; if (*a==':') c++; }
 
 	if (d>c) {
@@ -121,3 +129,19 @@ int d=0,c=0;
 		}
 	return -1;
 }
+
+
+
+int read_poll(int fd, time_t tmout)
+{
+struct timeval tv;
+fd_set read_fds;
+
+    FD_ZERO(&read_fds);
+    FD_SET(fd,&read_fds);
+
+    tv.tv_sec = 0; tv.tv_usec = tmout*1000;
+    return select(fd+1,&read_fds,NULL,NULL,&tv);
+}
+
+

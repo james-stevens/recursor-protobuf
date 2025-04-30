@@ -23,3 +23,4 @@ extern char * ip6char(struct in6_addr * addr);
 extern char * ipchar(in_addr_t addr);
 extern uint64_t xtoi(char * hex);
 int decode_net_addr(struct net_addr_st *ni,char * addr_in, uint16_t default_port);
+int read_poll(int fd, time_t tmout);

@@ -4,6 +4,7 @@
 #ifndef _INCLUDE_IPALL_H_
 #define _INCLUDE_IPALL_H_
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <netinet/in.h>
 
@@ -13,6 +14,7 @@ struct net_addr_st {
 	union addr_u {
 		in_addr_t v4;
 		struct in6_addr v6;
+		char path[PATH_MAX];
 		} addr;
 	};
 
