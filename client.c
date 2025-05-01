@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/nameser.h>
+#include <jansson.h>
+
+#include "protobuf2json.h"
+extern size_t base64_decode(char *dst, const char *src, size_t src_len);
 
 #include "log_message.h"
 #include "dnsmessage.pb-c.h"
@@ -34,6 +38,28 @@ int have_packet(struct buffer_st *buf)
 }
 
 
+void fix_json_fields(PBDNSMessage *pdnsmsg,json_t *json_object)
+{
+const char *json_key;
+json_t *json_object_value;
+
+	json_object_foreach(json_object, json_key, json_object_value) {
+		// logmsg(MSG_DEBUG,"json_key=%s %d\n",json_key,json_is_string(json_object_value));
+		if (strcmp(json_key,"serverIdentity")==0) {
+			char svr_id[260];
+			const char* value_string = json_string_value(json_object_value);
+			size_t len = base64_decode(svr_id,value_string,strlen(value_string));
+
+			logmsg(MSG_DEBUG,"json_key=%s %s\n",json_key,svr_id);
+
+			json_t *json_value = json_string(svr_id);
+			json_object_set(json_object,json_key,json_value);
+			json_decref(json_value);
+			}
+		}
+}
+
+
 
 int process_packet(struct buffer_st *buf)
 {
@@ -44,8 +70,23 @@ int len = buf->len+buf->frame;
 		return -1; }
 
 	PBDNSMessage * pdnsmsg = pbdnsmessage__unpack(NULL,buf->len,buf->data+buf->frame);
-	logmsg(MSG_DEBUG,"PBDNSMessage type=%d, inbytes=%lu\n",pdnsmsg->type,pdnsmsg->inbytes);
-	pbdnsmessage__free_unpacked(pdnsmsg,NULL);
+	if (pdnsmsg) {
+		logmsg(MSG_DEBUG,"PBDNSMessage type=%d, inbytes=%lu\n",pdnsmsg->type,pdnsmsg->inbytes);
+
+		char errbuf[250];
+		json_t *json_object;
+		int ret = protobuf2json_object((ProtobufCMessage *)pdnsmsg,&json_object,errbuf,sizeof(errbuf));
+
+		fix_json_fields(pdnsmsg,json_object);
+		logmsg(MSG_DEBUG,"protobuf2json_string gave %d\n",ret);
+		char * json = json_dumps(json_object,0);
+		if (json) {
+			puts(json);
+			free(json);
+			}
+		json_decref(json_object);
+		pbdnsmessage__free_unpacked(pdnsmsg,NULL);
+		}
 
 	memmove(buf->data,buf->data+len,buf->pos-len);
 	buf->pos -= len;
