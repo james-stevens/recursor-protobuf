@@ -1,13 +1,18 @@
 # recursor-protobuf
 Decode PowerDNS Recursor's protobuf to JSON and send to Vector
 
+#####################################################################
 
-#################################################################
+I'm still working on this, but it actually fully works right now
+I'd recommend using `-l x200003` to surpress debugging messages
 
-WORK IN PROGRESS - Don't even attempt to expect this to work, yet
+Still need to add
+- collecting metrics & writing to a Prometheus file
 
-#################################################################
+#####################################################################
 
+
+## This is wher the `proto` file came from
 
 Protobuf to parse
 - https://github.com/PowerDNS/pdns/blob/master/pdns/dnsmessage.proto
@@ -15,6 +20,11 @@ Protobuf to parse
 Downloads `dnsmessage.proto` file itself from here, using `curl`
 - https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
+I've included the `proto` file in this code as it would not compile without it
+but if you remove it, the `Makefile` should just re-curl it from that second URL.
+
+
+## Required Packages To Compaile
 
 If you want to compile this, you will need to install these
 - protobuf-c
@@ -26,31 +36,14 @@ If you want to compile this, you will need to install these
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
 
 
-## Frame Stream Format
-### Frame Streams Control Frame Format - Data frame length equals 00 00 00 00
+## Example config
+These config files are all you need to test this code out. For production use you'll want all sorts of other paramters.
 
-```
-|------------------------------------|----------------------|
-| Data frame length                  | 4 bytes              |  
-|------------------------------------|----------------------|
-| Control frame length               | 4 bytes              |
-|------------------------------------|----------------------|
-| Control frame type                 | 4 bytes              |
-|------------------------------------|----------------------|
-| Control frame content type         | 4 bytes (optional)   |
-|------------------------------------|----------------------|
-| Control frame content type length  | 4 bytes (optional)   |
-|------------------------------------|----------------------|
-| Content type payload               | xx bytes             |     
-|------------------------------------|----------------------|
-```
+### PDNS Recursor
+- recursor.conf
+- recursor.lua
 
-### Frame Streams Data Frame Format
+### Vector (https://vector.dev)
+- vector.yaml
 
-```
-|------------------------------------|----------------------|
-| Data frame length                  | 4 bytes              |
-|------------------------------------|----------------------|
-| Payload - Protobuf                 | xx bytes             |
-|------------------------------------|----------------------|
-```
+with this `vector.yaml` you'd need to also add `-o 127.0.0.1:9000` to make this code connect to `vector`
