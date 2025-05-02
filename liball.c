@@ -138,11 +138,9 @@ int read_poll(int fd, time_t tmout)
 struct timeval tv;
 fd_set read_fds;
 
-    FD_ZERO(&read_fds);
-    FD_SET(fd,&read_fds);
+	FD_ZERO(&read_fds);
+	FD_SET(fd,&read_fds);
 
-    tv.tv_sec = 0; tv.tv_usec = tmout*1000;
-    return select(fd+1,&read_fds,NULL,NULL,&tv);
+	tv.tv_sec = 0; tv.tv_usec = tmout*1000;
+	return select(fd+1,&read_fds,NULL,NULL,&tv);
 }
-
-

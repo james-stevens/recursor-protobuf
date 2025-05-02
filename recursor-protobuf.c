@@ -1,5 +1,5 @@
 /*******************************************************************
-*    (c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
+*	(c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
 ********************************************************************/
 #include <stdio.h>
 #include <unistd.h>
@@ -22,8 +22,8 @@ void usage()
 	puts("Usage:");
 	puts("-i <input-socket> - Listen here for PDNS Recursor to connect, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
 	puts("-o <input-socket> - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
-	puts("-l <log-level>    - see 'log_message.h' for values, preceed with 'x' to specify a hex value");
-	puts("-D                - Debug mode, prevent forking");
+	puts("-l <log-level>	- see 'log_message.h' for values, preceed with 'x' to specify a hex value");
+	puts("-D				- Debug mode, prevent forking");
 	exit(1);
 }
 

@@ -26,6 +26,8 @@ struct buffer_st {
 	uint8_t data[MAX_READ];
 	};
 
+int dst_sock = 0;
+FILE * dst_fp = NULL;
 
 
 // do we have enough header length bytes & enough data bytes
@@ -138,7 +140,7 @@ void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 
 
 
-int process_packet(struct buffer_st *buf, FILE * dst_fp)
+int process_packet(struct buffer_st *buf)
 {
 int len = buf->len+buf->hdr_len;
 
@@ -163,7 +165,7 @@ int len = buf->len+buf->hdr_len;
 				char *p = json + json_len;
 				*p++ = '\n'; *p++ = 0;
 				printf("<%s>\n",json); fflush(stdout);
-				fwrite(json,json_len+1,1,dst_fp);
+				if (dst_fp) fwrite(json,json_len+1,1,dst_fp);
 				}
 			json_decref(json_object);
 			pbdnsmessage__free_unpacked(pdnsmsg,NULL);
@@ -182,8 +184,13 @@ int run_client(int client_fd,struct net_addr_st *to_ni)
 {
 struct buffer_st buf;
 
-	int dst_sock = SockOpenAny(to_ni,NULL);
-	FILE * dst_fp = fdopen(dst_sock,"w");
+	dst_sock = SockOpenAny(to_ni,NULL);
+	if (dst_sock > 0) {
+		set_blocking(dst_sock,0);
+		dst_fp = fdopen(dst_sock,"w");
+		}
+	else
+		logmsg(MSG_ERROR,"ERROR: Failed to connect to vector\n");
 
 	buf.len = buf.pos = 0;
 	buf.hdr_len = 2;
@@ -201,7 +208,7 @@ struct buffer_st buf;
 		if ((ret = read(client_fd,buf.data+buf.pos,MAX_READ-buf.pos)) <= 0) break;
 		logmsg(MSG_DEBUG,"read %d bytes\n",ret);
 		buf.pos += ret;
-		while(have_packet(&buf)) process_packet(&buf,dst_fp);
+		while(have_packet(&buf)) process_packet(&buf);
 		}
 
 	fflush(dst_fp);
