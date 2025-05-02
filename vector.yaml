@@ -1,0 +1,28 @@
+api:
+  enabled: true
+  address: 127.0.0.1:8686
+
+data_dir: "/opt/vector"
+
+sources:
+  json_data:
+    type: socket
+    address: 0.0.0.0:9000
+    mode: tcp
+    decoding:
+      codec: json
+
+sinks:
+  dnstap_to_file:
+    inputs: [ json_data ]
+    type: file
+    path: "/opt/vector/dnstap/%Y/%m/%d/%H/dnstap_%Y%m%d-%H%M.log"
+    buffer:
+      max_events: 1000000
+    healthcheck:
+      enabled: true
+    framing:
+      method: "newline_delimited"
+    encoding:
+      codec: json
+      metric_tag_values: full
