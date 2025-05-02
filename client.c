@@ -26,12 +26,24 @@ struct buffer_st {
 	uint8_t data[MAX_READ];
 	};
 
-int dst_sock = 0;
-FILE * dst_fp = NULL;
+int buffered_data_out = 0;
+int dst_sock = -1;
+struct net_addr_st dst_ni;
+
+
+static void reconnect_socket()
+{
+	logmsg(MSG_DEBUG,"dst_sock = %d\n",dst_sock);
+	dst_sock = SockOpenAny(&dst_ni,NULL);
+	set_blocking(dst_sock,0);
+	if (dst_sock < 0) logmsg(MSG_ERROR,"ERROR: Failed to connect to vector\n");
+	else logmsg(MSG_DEBUG,"Yeah - connected to vector\n");
+}
+
 
 
 // do we have enough header length bytes & enough data bytes
-int have_packet(struct buffer_st *buf)
+static int have_packet(struct buffer_st *buf)
 {
 	logmsg(MSG_NONE,"%d bytes in store\n",buf->pos);
 
@@ -52,7 +64,7 @@ int have_packet(struct buffer_st *buf)
 
 
 typedef enum { fix_type_basic, fix_type_ip_addr } fix_type_e;
-int fix_one_field(ProtobufCBinaryData *input, json_t *json_object,char *json_key, fix_type_e key_type)
+static int fix_one_field(ProtobufCBinaryData *input, json_t *json_object,char *json_key, fix_type_e key_type)
 {
 char buffer[500],output[500],*new_val = NULL;
 int af_type = 0;
@@ -91,7 +103,7 @@ int af_type = 0;
 
 
 
-int has_ip_addr_rr(PBDNSMessage__DNSResponse *response)
+static int has_ip_addr_rr(PBDNSMessage__DNSResponse *response)
 {
 	if ((!response)||(!response->has_rcode)||(response->rcode)) return 0;
 	if ((!response->n_rrs)||(!response->rrs)) return 0;
@@ -106,7 +118,7 @@ int has_ip_addr_rr(PBDNSMessage__DNSResponse *response)
 
 
 
-void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
+static void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 {
 	fix_one_field(&pdnsmsg->serveridentity,json_object,"serverIdentity",fix_type_basic);
 	fix_one_field(&pdnsmsg->from,json_object,"from",fix_type_ip_addr);
@@ -140,7 +152,7 @@ void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 
 
 
-int process_packet(struct buffer_st *buf)
+static int process_packet(struct buffer_st *buf)
 {
 int len = buf->len+buf->hdr_len;
 
@@ -165,7 +177,15 @@ int len = buf->len+buf->hdr_len;
 				char *p = json + json_len;
 				*p++ = '\n'; *p++ = 0;
 				printf("<%s>\n",json); fflush(stdout);
-				if (dst_fp) fwrite(json,json_len+1,1,dst_fp);
+				if (dst_sock <= 0) reconnect_socket();
+				if (dst_sock > 0) {
+					json_len++;
+					size_t wrote = write(dst_sock,json,json_len);
+					if ((wrote != json_len)&&(errno != EAGAIN)) {
+						shutdown(dst_sock,SHUT_RDWR); close(dst_sock);
+						dst_sock = -1;
+						}
+					}
 				}
 			json_decref(json_object);
 			pbdnsmessage__free_unpacked(pdnsmsg,NULL);
@@ -184,13 +204,8 @@ int run_client(int client_fd,struct net_addr_st *to_ni)
 {
 struct buffer_st buf;
 
-	dst_sock = SockOpenAny(to_ni,NULL);
-	if (dst_sock > 0) {
-		set_blocking(dst_sock,0);
-		dst_fp = fdopen(dst_sock,"w");
-		}
-	else
-		logmsg(MSG_ERROR,"ERROR: Failed to connect to vector\n");
+	memcpy(&dst_ni,to_ni,sizeof(struct net_addr_st));
+	reconnect_socket();
 
 	buf.len = buf.pos = 0;
 	buf.hdr_len = 2;
@@ -198,12 +213,9 @@ struct buffer_st buf;
 	while(!interupt) {
 		int ret;
 
-		ret = read_poll(client_fd,500);
+		ret = read_poll(client_fd,1000);
 		if (ret < 0) break;
-		if (ret == 0) {
-			fflush(dst_fp);
-			continue;
-			}
+		if (ret == 0) continue;
 
 		if ((ret = read(client_fd,buf.data+buf.pos,MAX_READ-buf.pos)) <= 0) break;
 		logmsg(MSG_DEBUG,"read %d bytes\n",ret);
@@ -211,7 +223,6 @@ struct buffer_st buf;
 		while(have_packet(&buf)) process_packet(&buf);
 		}
 
-	fflush(dst_fp);
 	shutdown(client_fd,SHUT_RDWR); close(client_fd);
 	shutdown(dst_sock,SHUT_RDWR); close(dst_sock);
 	return 0;

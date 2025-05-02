@@ -9,9 +9,6 @@ I'd recommend using `-l x200003` to surpress debugging messages
 Still need to do
 - collecting metrics & writing to a Prometheus file
 - tidy up debugging code
-- poll longer if there's no data waiting to leave
-- only flush if there is data waiting to leave
-- checking connection to vector & recover/retry connection to vector if it gets restarted
 
 #####################################################################
 
