@@ -13,6 +13,7 @@ extern size_t base64_decode(char *dst, const char *src, size_t src_len);
 
 #include "log_message.h"
 #include "socket_client.h"
+#include "stats.h"
 #include "client.h"
 
 #define MAX_JSON 25000

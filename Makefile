@@ -37,9 +37,9 @@ log_message.o: log_message.c log_message.h
 
 liball.o: liball.c liball.h
 
-recursor-protobuf.o: recursor-protobuf.c log_message.h
+recursor-protobuf.o: recursor-protobuf.c log_message.h stats.h
 
-client.o: client.c client.h log_message.h dnsmessage.pb-c.h
+client.o: client.c client.h log_message.h dnsmessage.pb-c.h stats.h
 
 recursor-protobuf: $(OBJS) 
 	$(CC) -o recursor-protobuf $(CFLAGS) $(OBJS) $(LDFLAGS)

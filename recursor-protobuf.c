@@ -6,12 +6,15 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 
 #include "log_message.h"
 #include "socket_server.h"
 #include "client.h"
+#include "stats.h"
 
 #define DEFAULT_PORT 7011
+#define MAX_PROCESSES 200
 
 int interupt = 0;
 void sig(int s) { interupt=s; }
@@ -27,6 +30,8 @@ void usage()
 	exit(1);
 }
 
+
+
 int main(int argc,char * argv[])
 {
 loglvl_t level = MSG_DEBUG|MSG_NORMAL|MSG_STDOUT|MSG_HIGH|MSG_FILE_LINE;
@@ -34,8 +39,15 @@ struct sigaction sa;
 int prevent_fork = 0;
 struct net_addr_st from_ni,to_ni;
 
+	init_log(argv[0],level);
+
 	memset(&from_ni,0,sizeof(struct net_addr_st));
 	memset(&to_ni,0,sizeof(struct net_addr_st));
+
+	size_t stats_sz = sizeof(struct stats_st)*MAX_PROCESSES;
+	struct stats_st *stats = mmap(0, stats_sz,  PROT_READ | PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	if (stats==MAP_FAILED) { logmsg(MSG_ERROR,"ERROR: mmap failed - %s\n",ERRMSG); exit(1); }
+	for(int i=0;i<MAX_PROCESSES;i++) stats[i].pid = 0;
 
 	time_t now = time(NULL);
 
@@ -107,5 +119,7 @@ struct net_addr_st from_ni,to_ni;
 
 	shutdown(sock,SHUT_RDWR); close(sock);
 	if ((from_ni.is_type==1)&&(from_ni.addr.path[0]=='/')) unlink(from_ni.addr.path);
+	munmap(stats,stats_sz);
+
 	return 0;
 }
