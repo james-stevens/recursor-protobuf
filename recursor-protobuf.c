@@ -17,6 +17,10 @@ void sig(int s) { interupt=s; }
 void usage()
 {
 	puts("Usage:");
+	puts("-i <input-socket> - Recursor connect to here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
+	puts("-o <input-socket> - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
+	puts("-l <log-level>    - see 'log_message.h' for values, preceed with 'x' to specify a hex value");
+	puts("-D                - Debug mode, prevent forking");
 	exit(1);
 }
 
@@ -25,10 +29,11 @@ int main(int argc,char * argv[])
 loglvl_t level = MSG_DEBUG|MSG_NORMAL|MSG_STDOUT|MSG_HIGH|MSG_FILE_LINE;
 struct sigaction sa;
 int prevent_fork = 0;
-struct net_addr_st from_ni;
+struct net_addr_st from_ni,to_ni;
 char from_path[PATH_MAX];
 
 	memset(&from_ni,0,sizeof(struct net_addr_st));
+	memset(&to_ni,0,sizeof(struct net_addr_st));
 
 	time_t now = time(NULL);
 
@@ -45,7 +50,7 @@ char from_path[PATH_MAX];
 	init_log(argv[0],level);
 
 	int opt;
-	while((opt=getopt(argc,argv,"l:Dc:f:t:L:d:U:")) > 0)
+	while((opt=getopt(argc,argv,"l:i:o:D")) > 0)
 		{
 		switch(opt)
 			{
@@ -54,7 +59,12 @@ char from_path[PATH_MAX];
 			case 'D' : prevent_fork = 1; break;
 			case 'i' :
 				if (decode_net_addr(&from_ni,optarg,DEFAULT_PORT) < 0) {
-					logmsg(MSG_ERROR,"ERROR: Invalid from address '%s'\n",optarg);
+					logmsg(MSG_ERROR,"ERROR: Invalid input address '%s'\n",optarg);
+					usage(); }
+				break;
+			case 'o' :
+				if (decode_net_addr(&to_ni,optarg,DEFAULT_PORT) < 0) {
+					logmsg(MSG_ERROR,"ERROR: Invalid output address '%s'\n",optarg);
 					usage(); }
 				break;
 			}
@@ -83,6 +93,12 @@ char from_path[PATH_MAX];
 		if (ret==0) continue;
 
 		if ((client_fd = accept(sock,NULL,NULL)) <= 0) break;
+
+		// this is strictly for debugging only
+		if (prevent_fork) {
+			run_client(client_fd);
+			continue;
+			}
 
 		pid_t client_pid = fork();
 		if (client_pid < 0) break;

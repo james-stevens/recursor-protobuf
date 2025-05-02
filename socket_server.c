@@ -125,7 +125,10 @@ struct linger ling;
 
 int tcp_server_any(struct net_addr_st *l,int blocking)
 {
-	if (l->is_type == 4) return init_tcp_server(l->addr.v4,l->port,blocking,50);
-	if (l->is_type == 6) return init_tcp6_server(&l->addr.v6,l->port,blocking,50);
+	switch(l->is_type) {
+		case 1: return init_unix_server(l->addr.path,blocking,50); break;
+		case 4: return init_tcp_server(l->addr.v4,l->port,blocking,50); break;
+		case 6: return init_tcp6_server(&l->addr.v6,l->port,blocking,50); break;
+		}
 	return -1;
 }

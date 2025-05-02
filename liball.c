@@ -102,7 +102,7 @@ int d=0,c=0;
 	memset(ni,0,sizeof(struct net_addr_st));
 	if (BLANK(addr_in)) return -1;
 
-	if (addr_in[0]=='/') {
+	if ((addr_in[0]=='@')||(addr_in[0]=='/')) {
 		ni->is_type=1;
 		STRCPY(ni->addr.path,addr_in);
 		return 0;
