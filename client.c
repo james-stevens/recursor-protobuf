@@ -55,7 +55,7 @@ int fix_one_field(ProtobufCBinaryData *input, json_t *json_object,char *json_key
 char buffer[500],output[500],*new_val = NULL;
 int af_type = 0;
 
-	logmsg(MSG_DEBUG,"fix_one_field '%s', %d bytes\n",json_key,input->len);
+	logmsg(MSG_DEBUG,"fix_one_field '%s', %lu bytes\n",json_key,input->len);
 
 	switch(key_type) {
 		case fix_type_basic:
@@ -131,7 +131,7 @@ void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 		input.len = base64_decode((char *)buffer,value_string,strlen(value_string));
 		input.data = buffer;
 
-		logmsg(MSG_DEBUG,"rdata '%s' decodes to %d bytes\n",value_string,input.len);
+		logmsg(MSG_DEBUG,"rdata '%s' decodes to %lu bytes\n",value_string,input.len);
 		fix_one_field(&input,json_array_item,"rdata",fix_type_ip_addr);
 		}
 }

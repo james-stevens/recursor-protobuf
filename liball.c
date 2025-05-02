@@ -1,6 +1,7 @@
 /*******************************************************************
 *	(c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
 ********************************************************************/
+#include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -24,7 +25,7 @@ void * eolncpy(const char * file,const int line, char * dst, char * src,int size
 	if (!len) { dst[0]=0; return dst; }
 
 	if (len >= size_of) {
-		logmsg(MSG_ERROR,"ERROR: %s[%d] - str/size_of exceeded (%ld >= %d)\n",file,line,len,size_of);
+		logmsg(MSG_ERROR,"ERROR: %s[%d] - str/size_of exceeded (%d >= %d)\n",file,line,len,size_of);
 		len = size_of;
 		}
 	MEMCPY(dst,src,len);
