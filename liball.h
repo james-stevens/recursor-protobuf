@@ -16,6 +16,13 @@
 #define IPADDRCHAR(A) (((A).is_type==4)?ipchar((A).addr.v4):ip6char(&((A).addr.v6)))
 #define BLANK(A) ((A==NULL)||(A[0]==0))
 
+#define mksin(/*struct sockaddr_in*/ sin, /*in_addr_t*/ addr, /*u_int16_t*/ port ) { \
+        memset(&(sin), 0, sizeof(sin)); \
+        (sin).sin_family = AF_INET; \
+        (sin).sin_addr.s_addr = (addr); \
+        (sin).sin_port = htons(port); \
+    }
+
 extern int set_blocking(int fd,int blocking);
 extern void *eolncpy(const char * file,const int line, char * dst, char * src,int size_of);
 extern void mksin6(struct sockaddr_in6 *sin,struct in6_addr *addr, unsigned short port);

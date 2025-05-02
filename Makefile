@@ -5,7 +5,7 @@ CC=gcc
 CFLAGS=-Wall -O2
 LDFLAGS=-lprotobuf-c -ljansson
 #
-OBJS=dnsmessage.pb-c.o protobuf2json.o socket_server.o log_message.o liball.o recursor-protobuf.o client.o
+OBJS=dnsmessage.pb-c.o protobuf2json.o socket_server.o log_message.o liball.o recursor-protobuf.o client.o socket_client.o
 PDNS_SRC=https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
 all: recursor-protobuf
@@ -27,6 +27,8 @@ dnsmessage.proto:
 	curl $(PDNS_SRC) > dnsmessage.proto
 
 socket_server.o: socket_server.c socket_server.h liball.h ipall.h log_message.h
+
+socket_client.o: socket_client.c socket_client.h liball.h ipall.h log_message.h
 
 log_message.o: log_message.c log_message.h
 
