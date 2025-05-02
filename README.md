@@ -6,10 +6,12 @@ Decode PowerDNS Recursor's protobuf to JSON and send to Vector
 I'm still working on this, but it actually fully works right now
 I'd recommend using `-l x200003` to surpress debugging messages
 
-Still need to add
+Still need to do
 - collecting metrics & writing to a Prometheus file
-- checking on connection to vector
 - tidy up debugging code
+- poll longer if there's no data waiting to leave
+- only flush if there is data waiting to leave
+- checking connection to vector & recover/retry connection to vector if it gets restarted
 
 #####################################################################
 
