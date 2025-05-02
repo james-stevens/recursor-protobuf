@@ -13,6 +13,9 @@ all: recursor-protobuf
 clean:
 	rm -f $(OBJS) dnsmessage.pb-c.c dnsmessage.pb-c.h
 
+strip: recursor-protobuf
+	strip recursor-protobuf
+
 dnsmessage.pb-c.c: dnsmessage.proto
 	protoc --c_out=. dnsmessage.proto
 
