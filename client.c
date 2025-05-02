@@ -53,6 +53,7 @@ typedef enum { fix_type_basic, fix_type_ip_addr } fix_type_e;
 int fix_one_field(ProtobufCBinaryData *input, json_t *json_object,char *json_key, fix_type_e key_type)
 {
 char buffer[500],output[500],*new_val = NULL;
+int af_type = 0;
 
 	logmsg(MSG_DEBUG,"fix_one_field '%s', %d bytes\n",json_key,input->len);
 
@@ -63,7 +64,6 @@ char buffer[500],output[500],*new_val = NULL;
 			new_val = buffer;
 			break;
 		case fix_type_ip_addr:
-			int af_type = 0;
 			if (input->len==4) af_type = AF_INET;
 			if (input->len==16) af_type = AF_INET6;
 			logmsg(MSG_DEBUG,"af = %d (%d,%d), key_type=%d\n",af_type,AF_INET,AF_INET6,key_type);
@@ -94,7 +94,7 @@ int has_ip_addr_rr(PBDNSMessage__DNSResponse *response)
 	if ((!response)||(!response->has_rcode)||(response->rcode)) return 0;
 	if ((!response->n_rrs)||(!response->rrs)) return 0;
 
-	for(int i=0;i<response->n_rrs;i++) {
+	for(size_t i=0;i<response->n_rrs;i++) {
 		PBDNSMessage__DNSResponse__DNSRR *rr = response->rrs[i];
 		if ((rr->has_class_)&&(rr->class_==C_IN)
 		  &&(rr->has_type)&&((rr->type==T_A)||(rr->type==T_AAAA))) return 1;

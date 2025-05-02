@@ -39,6 +39,14 @@ If you want to compile this, you will need to install these
 
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
 
+### To Build
+
+Just run `make`. Also supported `make clean` and `make all`.
+
+Also `make strip` will make the binary then strip it.
+
+I get no compiler errors or warnings, so I expect you to get the same.
+
 
 ## Example config
 These config files are all you need to test this code out. For production use you'll want all sorts of other paramters.

@@ -2,7 +2,7 @@
 # (c) Copyright 2025 JRCS Ltd - All Right Reserved
 #
 CC=gcc
-CFLAGS=-Wall -O2
+CFLAGS=-O2 -Wall -Wextra -Wshadow -pedantic -Wno-variadic-macros
 LDFLAGS=-lprotobuf-c -ljansson
 #
 OBJS=dnsmessage.pb-c.o protobuf2json.o socket_server.o log_message.o liball.o recursor-protobuf.o client.o socket_client.o
