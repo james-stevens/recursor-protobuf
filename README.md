@@ -8,6 +8,8 @@ I'd recommend using `-l x200003` to surpress debugging messages
 
 Still need to add
 - collecting metrics & writing to a Prometheus file
+- checking on connection to vector
+- tidy up debugging code
 
 #####################################################################
 
