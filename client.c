@@ -50,6 +50,8 @@ int fix_one_field(ProtobufCBinaryData *input, json_t *json_object,char *json_key
 {
 char buffer[500],output[500],*new_val = NULL;
 
+	logmsg(MSG_DEBUG,"fix_one_field '%s', %d bytes\n",json_key,input->len);
+
 	switch(key_type) {
 		case fix_type_basic:
 			memcpy(buffer,input->data,input->len);
@@ -60,6 +62,7 @@ char buffer[500],output[500],*new_val = NULL;
 			int af_type = 0;
 			if (input->len==4) af_type = AF_INET;
 			if (input->len==16) af_type = AF_INET6;
+			logmsg(MSG_DEBUG,"af = %d (%d,%d), key_type=%d\n",af_type,AF_INET,AF_INET6,key_type);
 			if (af_type) {
 				inet_ntop(af_type,input->data,output,sizeof(output));
 				new_val=output;
@@ -73,6 +76,8 @@ char buffer[500],output[500],*new_val = NULL;
 	json_t *json_new_value = json_string(new_val);
 	if (!json_new_value) return -4;
 
+	logmsg(MSG_DEBUG,"Fixing '%s' to '%s'\n",json_key,new_val);
+
 	json_object_set(json_object,json_key,json_new_value);
 	json_decref(json_new_value);
 	return 0;
@@ -80,7 +85,7 @@ char buffer[500],output[500],*new_val = NULL;
 
 
 
-int has_ip_addr_rrs(PBDNSMessage__DNSResponse *response)
+int has_ip_addr_rr(PBDNSMessage__DNSResponse *response)
 {
 	if ((!response)||(!response->has_rcode)||(response->rcode)) return 0;
 	if ((!response->n_rrs)||(!response->rrs)) return 0;
@@ -94,16 +99,37 @@ int has_ip_addr_rrs(PBDNSMessage__DNSResponse *response)
 }
 
 
+
 void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 {
 	fix_one_field(&pdnsmsg->serveridentity,json_object,"serverIdentity",fix_type_basic);
 	fix_one_field(&pdnsmsg->from,json_object,"from",fix_type_ip_addr);
 	fix_one_field(&pdnsmsg->to,json_object,"to",fix_type_ip_addr);
 
-	if ((pdnsmsg->type != PBDNSMESSAGE__TYPE__DNSResponseType)||(!has_ip_addr_rrs(pdnsmsg->response))) return;
+	if ((pdnsmsg->type != PBDNSMESSAGE__TYPE__DNSResponseType)||(!has_ip_addr_rr(pdnsmsg->response))) return;
 
 	json_t *json_response = json_object_get(json_object,"response");
 	if ((!json_response)||(!json_is_object(json_response))) return;
+
+	json_t *json_rrs = json_object_get(json_response,"rrs");
+	if ((!json_rrs)||(!json_is_array(json_rrs))) return;
+	logmsg(MSG_DEBUG,"json rrs array found\n");
+
+	size_t json_index;
+	json_t *json_array_item;
+	json_array_foreach(json_rrs, json_index, json_array_item) {
+		uint8_t buffer[50];
+		ProtobufCBinaryData input;
+
+		json_t *json_rdata = json_object_get(json_array_item,"rdata");
+		const char *value_string = json_string_value(json_rdata);
+
+		input.len = base64_decode((char *)buffer,value_string,strlen(value_string));
+		input.data = buffer;
+
+		logmsg(MSG_DEBUG,"rdata '%s' decodes to %d bytes\n",value_string,input.len);
+		fix_one_field(&input,json_array_item,"rdata",fix_type_ip_addr);
+		}
 }
 
 
