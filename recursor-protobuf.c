@@ -1,3 +1,6 @@
+/*******************************************************************
+*    (c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
+********************************************************************/
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -89,7 +92,7 @@ struct net_addr_st from_ni,to_ni;
 
 		// this is strictly for debugging only
 		if (prevent_fork) {
-			run_client(client_fd);
+			run_client(client_fd,&to_ni);
 			continue;
 			}
 
@@ -97,7 +100,7 @@ struct net_addr_st from_ni,to_ni;
 		if (client_pid < 0) break;
 		if (client_pid == 0) {
 			close(sock);
-			exit(run_client(client_fd));
+			exit(run_client(client_fd,&to_ni));
 			}
 		close(client_fd);
 		}

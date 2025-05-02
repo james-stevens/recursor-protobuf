@@ -1,3 +1,6 @@
+/*******************************************************************
+*    (c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
+********************************************************************/
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/nameser.h>
@@ -6,9 +9,10 @@
 
 #include "protobuf2json.h"
 extern size_t base64_decode(char *dst, const char *src, size_t src_len);
+#include "dnsmessage.pb-c.h"
 
 #include "log_message.h"
-#include "dnsmessage.pb-c.h"
+#include "socket_client.h"
 #include "client.h"
 
 #define MAX_JSON 25000
@@ -134,7 +138,7 @@ void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 
 
 
-int process_packet(struct buffer_st *buf)
+int process_packet(struct buffer_st *buf, FILE * dst_fp)
 {
 int len = buf->len+buf->hdr_len;
 
@@ -159,6 +163,7 @@ int len = buf->len+buf->hdr_len;
 				char *p = json + json_len;
 				*p++ = '\n'; *p++ = 0;
 				printf("<%s>\n",json); fflush(stdout);
+				fwrite(json,json_len+1,1,dst_fp);
 				}
 			json_decref(json_object);
 			pbdnsmessage__free_unpacked(pdnsmsg,NULL);
@@ -173,9 +178,12 @@ int len = buf->len+buf->hdr_len;
 
 
 
-int run_client(int client_fd)
+int run_client(int client_fd,struct net_addr_st *to_ni)
 {
 struct buffer_st buf;
+
+	int dst_sock = SockOpenAny(to_ni,NULL);
+	FILE * dst_fp = fdopen(dst_sock,"w");
 
 	buf.len = buf.pos = 0;
 	buf.hdr_len = 2;
@@ -183,16 +191,21 @@ struct buffer_st buf;
 	while(!interupt) {
 		int ret;
 
-		ret = read_poll(client_fd,1000);
+		ret = read_poll(client_fd,500);
 		if (ret < 0) break;
-		if (ret == 0) continue;
+		if (ret == 0) {
+			fflush(dst_fp);
+			continue;
+			}
 
 		if ((ret = read(client_fd,buf.data+buf.pos,MAX_READ-buf.pos)) <= 0) break;
 		logmsg(MSG_DEBUG,"read %d bytes\n",ret);
 		buf.pos += ret;
-		while(have_packet(&buf)) process_packet(&buf);
+		while(have_packet(&buf)) process_packet(&buf,dst_fp);
 		}
 
+	fflush(dst_fp);
 	shutdown(client_fd,SHUT_RDWR); close(client_fd);
+	shutdown(dst_sock,SHUT_RDWR); close(dst_sock);
 	return 0;
 }

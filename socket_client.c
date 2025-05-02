@@ -1,6 +1,6 @@
 /*
     #################################################################
-    #    (c) Copyright 2009-2022 JRCS Ltd  - All Rights Reserved    #
+    #    (c) Copyright 2009-now JRCS Ltd  - All Rights Reserved    #
     #################################################################
 */
 
@@ -146,6 +146,8 @@ int t_sz=0,f_sz=0,domain=0;
 
 	if ((from->is_type)&&(from->is_type!=target->is_type)) return -9;
 
+	if (target->is_type==1) return UnixSockOpen(target->addr.path);
+
 	if (target->is_type==4) {
 		mksin(from_v4,from->addr.v4,from->port);
 		mksin(target_v4,target->addr.v4,target->port);
@@ -179,6 +181,7 @@ int t_sz=0,f_sz=0,domain=0;
 
     return(sock);
 }
+
 
 
 int UnixSockOpen(char *name)
@@ -230,4 +233,3 @@ int sock;
 
     return sock;
 }
-

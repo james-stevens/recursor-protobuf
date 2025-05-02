@@ -1,5 +1,5 @@
 /*******************************************************************
-*	(c) Copyright 2009-2025 JRCS Ltd  - See LICENSE for details   *
+*	(c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
 ********************************************************************/
 #ifndef _INCLUDE_IPALL_H_
 #define _INCLUDE_IPALL_H_

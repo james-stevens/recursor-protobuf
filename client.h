@@ -1,1 +1,9 @@
-int run_client(int client_fd);
+/*******************************************************************
+*    (c) Copyright 2009-now JRCS Ltd  - See LICENSE for details   *
+********************************************************************/
+#ifndef _INCLUDE_CLIENT_H
+#define _INCLUDE_CLIENT_H
+
+int run_client(int client_fd,struct net_addr_st *to_ni);
+
+#endif
