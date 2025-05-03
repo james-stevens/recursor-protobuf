@@ -122,7 +122,7 @@ Protobuf to parse
 Downloads `dnsmessage.proto` file itself from here, using `curl`
 - https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
-I've included the `proto` file in this code as it would not compile without it
+I've included the `proto` file in this repo as the code would not compile without it
 but if you remove it, the `Makefile` should just re-curl it from that second URL.
 
 
