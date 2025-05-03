@@ -129,11 +129,11 @@ but if you remove it, the `Makefile` should just re-curl it from that second URL
 ## Required Packages To Compaile
 
 If you want to compile this, you will need to install these packages (names may vary by Linux Dist)
-- protobuf-c
-- protobuf-c-compiler
-- protobuf-c-dev
-- jansson
-- jansson-dev
+- `protobuf-c`
+- `protobuf-c-compiler`
+- `protobuf-c-dev`
+- `jansson`
+- `jansson-dev`
 
 I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
 
