@@ -40,7 +40,7 @@ to it's output to a listening destination to send the `<LF>` separated JSON to.
 
 I use [Vector](https://vector.dev) as the destination listener and
 I have included an [exmaple vector.yaml](/vector.yaml) config file to show how this cam be done.
-But you could use any destination that can listen on a plain (non-SSL) socket and accept <LF> separated JSON.
+But you could use any destination that can listen on a plain (non-SSL) socket and accept `<LF>` separated JSON.
 
 Vector gives a wide range of options for enriching, filters and exporting the data stream, so is a great tool for this use case.
 
