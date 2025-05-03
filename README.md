@@ -114,7 +114,7 @@ e.g. due to it being down / connection failure or the buffer was full (congestio
 Dropped bytes are measured in bytes of JSON, that fail to get written.
 
 
-## This is wher the `proto` file came from
+## This is where the `proto` file came from
 
 Protobuf to parse
 - https://github.com/PowerDNS/pdns/blob/master/pdns/dnsmessage.proto
