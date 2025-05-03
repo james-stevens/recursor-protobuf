@@ -109,8 +109,9 @@ You will get the following metrics. All metrics are the total from all child pro
 
 All metrics are `counter` type.
 
-Dropped packets/bytes are bytes/packets received from PDNS Recursor that we were unable to write to the output receiver
+Dropped packets are packets received from PDNS Recursor that we were unable to write to the output receiver
 e.g. due to it being down / connection failure or the buffer was full (congestion).
+Dropped bytes are measured in bytes of JSON, that fail to get written.
 
 
 ## This is wher the `proto` file came from
