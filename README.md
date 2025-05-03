@@ -84,7 +84,7 @@ the `input` and `output` sockets are specified in the same format as each other 
 - Unix anonymouns socket, identified with a leading `@`
 
 Default input is `127.0.0.1:7011`, default output is `127.0.0.1:9000`. These are also the
-sockets specificed in the exmaple config files `recursor.lua` and `vector.yaml`.
+sockets specificed in the exmaple config files [recursor.lua](recursor.lua) and [vector.yaml](vector.yaml).
 
 ## Logging
 The default log level includes DEBUG, so I recommend you specify something different for production, e.g. `x200001` or `x200003`
