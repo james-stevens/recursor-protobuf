@@ -135,25 +135,28 @@ If you want to compile this, you will need to install these packages (names may 
 - `jansson`
 - `jansson-dev`
 
-I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be to hard!
+I compiled with `gcc version 12.2.1 20220924` on Alpine Linux v3.18, best of luck with anything else - shouldn't be too hard!
 
 ### To Build
 
-Just run `make`. Also supported `make clean` and `make all`.
+To build the binary, just run `make`. Also supported
+- `make clean` - remove all files created by the `Makefile`, except `dnsmessage.proto`
+- `make all` - same as `make`
+- `make strip` - make the binary then strip it.
 
-Also `make strip` will make the binary then strip it.
-
-I use quite a few extra compiler cheks and get no compiler errors or warnings, so I expect you to get the same.
+I use quite a few extra compiler checks and get no compiler errors or warnings, so I expect you to get the same.
 
 
 ## Example Config
 These config files are all you need to test this code out. For production use you'll want all sorts of other paramters.
 
 ### PDNS Recursor
-- recursor.conf
-- recursor.lua
+- `recursor.conf`
+- `recursor.lua`
 
-### Vector (https://vector.dev)
-- vector.yaml
+with this config the default input of `127.0.0.1:7011` should work.
 
-with this `vector.yaml` you'd need to also add `-o 127.0.0.1:9000` to make this code connect to `vector`
+### [Vector](https://vector.dev)
+- `vector.yaml`
+
+with this config the default output of `127.0.0.1:9000` should work.
