@@ -39,10 +39,10 @@ What this program does is listen on it's input for connections from PowerDNS Rec
 to it's output, to a listening destination, to send it the `<LF>` separated JSON.
 
 I use [Vector](https://vector.dev) as the destination listener and
-I have included an [example vector.yaml](/vector.yaml) config file to show how this cam be done.
+I have included an [example vector.yaml](/vector.yaml) config file to show how this can be done.
 But you could use any destination that can listen on a plain (non-SSL) socket and accept `<LF>` separated JSON.
 
-Vector gives a wide range of options for enriching, filters and exporting the data stream, so is a great tool for this use case.
+Vector gives a wide range of options for enriching, filtering and exporting the data stream, so is a great tool for this use case.
 
 
 # How It Works
@@ -59,7 +59,7 @@ You can then control how many times this program forks by how many threads you r
 
 # Extra Work It Does
 The data coming from PowerDNS Recursior sends all the IP Addresses in wire format, so this program decodes them to presentation format.
-Also, for <reasons>, in the `dnsmessage.proto` file, the `serverIdentity` is defined as binary, not string,
+Also, for `<reasons>`, in the `dnsmessage.proto` file, the `serverIdentity` is defined as binary, not string,
 this casues `protobuf2json.c` to base64 encode it, so this is also decoded from base64 back to a string.
 
 I prefer to do this than change Oleg Efimov's code.
