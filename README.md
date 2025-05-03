@@ -128,7 +128,7 @@ but if you remove it, the `Makefile` should just re-curl it from that second URL
 
 ## Required Packages To Compaile
 
-If you want to compile this, you will need to install these
+If you want to compile this, you will need to install these packages (names may vary by Linux Dist)
 - protobuf-c
 - protobuf-c-compiler
 - protobuf-c-dev
