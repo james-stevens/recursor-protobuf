@@ -36,7 +36,7 @@ This becomes especially necessary if you are using it to do [RPZ filtering](http
 as the only way to capture information about querues it blocks is using this interface.
 
 What this program does is listen on it's input for connections from PowerDNS Recursor, decodes the protobuf data into JSON, then connects
-to it's output to a listening destination to send the `<LF>` separated JSON to.
+to it's output, to a listening destination, to send it the `<LF>` separated JSON.
 
 I use [Vector](https://vector.dev) as the destination listener and
 I have included an [exmaple vector.yaml](/vector.yaml) config file to show how this cam be done.
