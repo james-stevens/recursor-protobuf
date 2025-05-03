@@ -13,8 +13,10 @@
 #include "client.h"
 #include "stats.h"
 
-#define DEFAULT_PORT 7011
+#define DEFAULT_SRC_PORT 7011
+#define DEFAULT_DST_PORT 9000
 #define MAX_PROCESSES 200
+#define DEFAULT_STATS_PATH "/var/run/recursor-protobuf.prom"
 
 int interupt = 0;
 void sig(int s) { interupt=s; }
@@ -23,10 +25,12 @@ void sig(int s) { interupt=s; }
 void usage()
 {
 	puts("Usage:");
-	puts("-i <input-socket> - Listen here for PDNS Recursor to connect, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
-	puts("-o <input-socket> - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
-	puts("-l <log-level>	- see 'log_message.h' for values, preceed with 'x' to specify a hex value");
-	puts("-D				- Debug mode, prevent forking");
+	puts("-i <socket>       - Listen here for PDNS Recursor to connect, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
+	puts("-o <socket>       - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
+	puts("-l <log-level>    - see 'log_message.h' for values, preceed with 'x' to specify a hex value, 'x200001' = Normal log level to stderr");
+	puts("-p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`");
+	puts("-t <secs>         - Period in seconds to write Prometheus stats, default = 30");
+	puts("-D                - Debug mode, prevent forking");
 	exit(1);
 }
 
@@ -34,6 +38,8 @@ void usage()
 
 int main(int argc,char * argv[])
 {
+time_t stats_interval = 30;
+char stats_path[PATH_MAX];
 loglvl_t level = MSG_DEBUG|MSG_NORMAL|MSG_STDOUT|MSG_HIGH|MSG_FILE_LINE;
 struct sigaction sa;
 int prevent_fork = 0;
@@ -43,6 +49,7 @@ struct net_addr_st from_ni,to_ni;
 
 	memset(&from_ni,0,sizeof(struct net_addr_st));
 	memset(&to_ni,0,sizeof(struct net_addr_st));
+	strcpy(stats_path,DEFAULT_STATS_PATH);
 
 	size_t stats_sz = sizeof(struct stats_st)*MAX_PROCESSES;
 	struct stats_st *stats = mmap(0, stats_sz,  PROT_READ | PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
@@ -61,8 +68,6 @@ struct net_addr_st from_ni,to_ni;
 	sa.sa_flags |= SA_RESTART;
 	sigaction(SIGHUP,&sa,NULL);
 
-	init_log(argv[0],level);
-
 	int opt;
 	while((opt=getopt(argc,argv,"l:i:o:D")) > 0)
 		{
@@ -72,28 +77,34 @@ struct net_addr_st from_ni,to_ni;
 			case 'l' : level = LEVEL(optarg); init_log(argv[0],level); break;
 			case 'D' : prevent_fork = 1; break;
 			case 'i' :
-				if (decode_net_addr(&from_ni,optarg,DEFAULT_PORT) < 0) {
+				if (decode_net_addr(&from_ni,optarg,DEFAULT_SRC_PORT) < 0) {
 					logmsg(MSG_ERROR,"ERROR: Invalid input address '%s'\n",optarg);
 					usage(); }
 				break;
 			case 'o' :
-				if (decode_net_addr(&to_ni,optarg,DEFAULT_PORT) < 0) {
+				if (decode_net_addr(&to_ni,optarg,DEFAULT_DST_PORT) < 0) {
 					logmsg(MSG_ERROR,"ERROR: Invalid output address '%s'\n",optarg);
 					usage(); }
 				break;
 			}
 		}
 
-	if (!from_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_PORT);
+	if (!from_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_SRC_PORT);
+	if (!to_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_DST_PORT);
 
 	int sock = tcp_server_any(&from_ni,1);
 	if (!sock) {
 		logmsg(MSG_ERROR,"ERROR: Failed to open listening socket");
 		usage(); }
 
+	time_t next_stats = now + stats_interval;
 	while(!interupt) {
 		int ret,client_fd;
 		now = time(NULL);
+		if (now >= next_stats) {
+			logmsg(MSG_DEBUG,"stats:\n");
+			next_stats = now + stats_interval;
+			}
 
 		while (waitpid(0,&ret,WNOHANG) > 0);
 
