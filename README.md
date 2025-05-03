@@ -14,7 +14,7 @@ Still need to do
 #####################################################################
 
 # Special Thanks
-Special thanks to Oleg Efimov for the following files
+Special thanks to [Oleg Efimov](https://github.com/Sannis/protobuf2json-c) for the following files
 - base64.h
 - bitmap.h
 - protobuf2json.c
