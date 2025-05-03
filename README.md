@@ -39,7 +39,7 @@ What this program does is listen on it's input for connections from PowerDNS Rec
 to it's output, to a listening destination, to send it the `<LF>` separated JSON.
 
 I use [Vector](https://vector.dev) as the destination listener and
-I have included an [exmaple vector.yaml](/vector.yaml) config file to show how this cam be done.
+I have included an [example vector.yaml](/vector.yaml) config file to show how this cam be done.
 But you could use any destination that can listen on a plain (non-SSL) socket and accept `<LF>` separated JSON.
 
 Vector gives a wide range of options for enriching, filters and exporting the data stream, so is a great tool for this use case.
@@ -84,7 +84,7 @@ the `input` and `output` sockets are specified in the same format as each other 
 - Unix anonymouns socket, identified with a leading `@`
 
 Default input is `127.0.0.1:7011`, default output is `127.0.0.1:9000`. These are also the
-sockets specificed in the exmaple config files [recursor.lua](recursor.lua) and [vector.yaml](vector.yaml).
+sockets specificed in the example config files [recursor.lua](recursor.lua) and [vector.yaml](vector.yaml).
 
 ## Logging
 The default log level includes DEBUG, so I recommend you specify something different for production, e.g. `x200001` or `x200003`
