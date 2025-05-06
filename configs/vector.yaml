@@ -13,10 +13,10 @@ sources:
       codec: json
 
 sinks:
-  dnstap_to_file:
+  recursor_to_file:
     inputs: [ json_data ]
     type: file
-    path: "/opt/vector/dnstap/%Y/%m/%d/%H/dnstap_%Y%m%d-%H%M.log"
+    path: "/opt/vector/recursor/%Y/%m/%d/%H/recursor_%Y%m%d-%H%M.log"
     buffer:
       max_events: 1000000
     healthcheck:
