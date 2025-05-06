@@ -38,6 +38,7 @@ void usage()
 
 int main(int argc,char * argv[])
 {
+int max_procs = MAX_PROCESSES;
 time_t stats_interval = 30;
 char stats_path[PATH_MAX];
 loglvl_t level = MSG_DEBUG|MSG_NORMAL|MSG_STDOUT|MSG_HIGH|MSG_FILE_LINE;
@@ -50,11 +51,6 @@ struct net_addr_st from_ni,to_ni;
 	memset(&from_ni,0,sizeof(struct net_addr_st));
 	memset(&to_ni,0,sizeof(struct net_addr_st));
 	strcpy(stats_path,DEFAULT_STATS_PATH);
-
-	size_t stats_sz = sizeof(struct stats_st)*MAX_PROCESSES;
-	struct stats_st *stats = mmap(0, stats_sz,  PROT_READ | PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-	if (stats==MAP_FAILED) { logmsg(MSG_ERROR,"ERROR: mmap failed - %s\n",ERRMSG); exit(1); }
-	for(int i=0;i<MAX_PROCESSES;i++) stats[i].pid = 0;
 
 	time_t now = time(NULL);
 
@@ -69,11 +65,12 @@ struct net_addr_st from_ni,to_ni;
 	sigaction(SIGHUP,&sa,NULL);
 
 	int opt;
-	while((opt=getopt(argc,argv,"l:i:o:D")) > 0)
+	while((opt=getopt(argc,argv,"l:i:o:Dx:")) > 0)
 		{
 		switch(opt)
 			{
 			default  : usage(); exit(-1); break;
+			case 'x' : max_procs = atoi(optarg); break;
 			case 'l' : level = LEVEL(optarg); init_log(argv[0],level); break;
 			case 'D' : prevent_fork = 1; break;
 			case 'i' :
@@ -88,6 +85,11 @@ struct net_addr_st from_ni,to_ni;
 				break;
 			}
 		}
+
+	size_t stats_sz = sizeof(struct stats_st)*max_procs;
+	struct stats_st *stats = mmap(0, stats_sz,  PROT_READ | PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	if (stats==MAP_FAILED) { logmsg(MSG_ERROR,"ERROR: mmap failed - %s\n",ERRMSG); exit(1); }
+	for(int i=0;i<max_procs;i++) stats[i].pid = 0;
 
 	if (!from_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_SRC_PORT);
 	if (!to_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_DST_PORT);
@@ -106,16 +108,19 @@ struct net_addr_st from_ni,to_ni;
 			next_stats = now + stats_interval;
 			}
 
-		while (waitpid(0,&ret,WNOHANG) > 0);
+		pid_t dead_pid;
+		while ((dead_pid = waitpid(0,&ret,WNOHANG)) > 0) stats_clear_pid_slot(stats,max_procs,dead_pid);
 
 		if ((ret = read_poll(sock,1000)) < 0) break;
 		if (ret==0) continue;
 
 		if ((client_fd = accept(sock,NULL,NULL)) <= 0) break;
 
+		struct stats_st *client_stats = stats_find_spare_slot(stats,max_procs);
+
 		// this is strictly for debugging only
 		if (prevent_fork) {
-			run_client(client_fd,&to_ni);
+			run_client(client_fd,&to_ni,client_stats);
 			continue;
 			}
 
@@ -123,13 +128,15 @@ struct net_addr_st from_ni,to_ni;
 		if (client_pid < 0) break;
 		if (client_pid == 0) {
 			close(sock);
-			exit(run_client(client_fd,&to_ni));
+			exit(run_client(client_fd,&to_ni,client_stats));
 			}
+		if (client_stats) client_stats->pid = client_pid;
 		close(client_fd);
 		}
 
 	shutdown(sock,SHUT_RDWR); close(sock);
 	if ((from_ni.is_type==1)&&(from_ni.addr.path[0]=='/')) unlink(from_ni.addr.path);
+
 	munmap(stats,stats_sz);
 
 	return 0;

@@ -5,7 +5,7 @@ CC=gcc
 CFLAGS=-O2 -Wall -Wextra -Wshadow -pedantic -Wno-variadic-macros -Wnull-dereference -Wformat=2 -Wno-format-y2k
 LDFLAGS=-lprotobuf-c -ljansson
 #
-OBJS=dnsmessage.pb-c.o protobuf2json.o socket_server.o log_message.o liball.o recursor-protobuf.o client.o socket_client.o
+OBJS=dnsmessage.pb-c.o protobuf2json.o socket_server.o log_message.o liball.o recursor-protobuf.o client.o socket_client.o stats.o
 PDNS_SRC=https://raw.githubusercontent.com/PowerDNS/pdns/refs/heads/master/pdns/dnsmessage.proto
 
 all: recursor-protobuf
@@ -35,11 +35,13 @@ socket_client.o: socket_client.c socket_client.h liball.h ipall.h log_message.h
 
 log_message.o: log_message.c log_message.h
 
+stats.o: stats.c stats.h
+
 liball.o: liball.c liball.h
 
 recursor-protobuf.o: recursor-protobuf.c log_message.h stats.h
 
-client.o: client.c client.h log_message.h dnsmessage.pb-c.h stats.h
+client.o: client.c client.h log_message.h dnsmessage.pb-c.h stats.h stats.o
 
 recursor-protobuf: $(OBJS) 
 	$(CC) -o recursor-protobuf $(CFLAGS) $(OBJS) $(LDFLAGS)

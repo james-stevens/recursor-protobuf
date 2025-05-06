@@ -21,6 +21,7 @@ extern size_t base64_decode(char *dst, const char *src, size_t src_len);
 
 extern int interupt;
 
+static struct stats_st *my_stats = NULL;
 
 struct buffer_st {
 	int len,pos,hdr_len;
@@ -182,9 +183,17 @@ int len = buf->len+buf->hdr_len;
 				if (dst_sock > 0) {
 					json_len++;
 					size_t wrote = write(dst_sock,json,json_len);
-					if ((wrote != json_len)&&(errno != EAGAIN)) {
-						shutdown(dst_sock,SHUT_RDWR); close(dst_sock);
-						dst_sock = -1;
+					if (wrote != json_len) {
+						my_stats->lost_pkts++;
+						my_stats->lost_bytes += json_len;
+						if (errno != EAGAIN) {
+							shutdown(dst_sock,SHUT_RDWR); close(dst_sock);
+							dst_sock = -1;
+							}
+						}
+					else {
+						my_stats->out_pkts++;
+						my_stats->out_bytes += json_len;
 						}
 					}
 				}
@@ -201,9 +210,12 @@ int len = buf->len+buf->hdr_len;
 
 
 
-int run_client(int client_fd,struct net_addr_st *to_ni)
+int run_client(int client_fd,struct net_addr_st *to_ni,struct stats_st *client_stats)
 {
 struct buffer_st buf;
+struct stats_st buf_stats;;
+
+	my_stats = (client_stats)?client_stats:&buf_stats;
 
 	memcpy(&dst_ni,to_ni,sizeof(struct net_addr_st));
 	reconnect_socket();
@@ -221,7 +233,11 @@ struct buffer_st buf;
 		if ((ret = read(client_fd,buf.data+buf.pos,MAX_READ-buf.pos)) <= 0) break;
 		logmsg(MSG_DEBUG,"read %d bytes\n",ret);
 		buf.pos += ret;
-		while(have_packet(&buf)) process_packet(&buf);
+		my_stats->in_bytes += ret;
+		while(have_packet(&buf)) {
+			my_stats->in_pkts++;
+			process_packet(&buf);
+			}
 		}
 
 	shutdown(client_fd,SHUT_RDWR); close(client_fd);
