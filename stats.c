@@ -62,11 +62,11 @@ struct stats_st total;
 		logmsg(MSG_ERROR,"ERROR: Failed to write stats file '%s' - %s\n",path,ERRMSG);
 		return; }
 
-	fprintf(fp,"recursor_protobuf_in_bytes{%s} %lu",server_id,total.in_bytes);
-	fprintf(fp,"recursor_protobuf_out_bytes{%s} %lu",server_id,total.out_bytes);
-	fprintf(fp,"recursor_protobuf_in_pkts{%s} %lu",server_id,total.in_pkts);
-	fprintf(fp,"recursor_protobuf_out_pkts{%s} %lu",server_id,total.out_pkts);
-	fprintf(fp,"recursor_protobuf_lost_bytes{%s} %lu",server_id,total.lost_bytes);
-	fprintf(fp,"recursor_protobuf_lost_pkts{%s} %lu",server_id,total.lost_pkts);
+	fprintf(fp,"recursor_protobuf_in_bytes{server_id=\"%s\"} %lu",server_id,total.in_bytes);
+	fprintf(fp,"recursor_protobuf_out_bytes{server_id=\"%s\"} %lu",server_id,total.out_bytes);
+	fprintf(fp,"recursor_protobuf_in_pkts{server_id=\"%s\"} %lu",server_id,total.in_pkts);
+	fprintf(fp,"recursor_protobuf_out_pkts{server_id=\"%s\"} %lu",server_id,total.out_pkts);
+	fprintf(fp,"recursor_protobuf_lost_bytes{server_id=\"%s\"} %lu",server_id,total.lost_bytes);
+	fprintf(fp,"recursor_protobuf_lost_pkts{server_id=\"%s\"} %lu",server_id,total.lost_pkts);
 	fclose(fp);
 }
