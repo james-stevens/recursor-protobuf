@@ -57,6 +57,13 @@ is completely isolated from all the others and scales pretty well in a multi-cor
 You can then control how many times this program forks by how many threads you run in PDNS Recursor.
 
 
+## Improvement
+
+One obvious improvement would be to buffer (batch) the writes on output. This would improve performance under heavy load.
+That said, under heavy load you should have lots of PDNS Recursor threads, so lots of instances of this will `fork()` and your
+O/S should take care of things, but reducing the number of `write()` calls would def reduce load.
+
+
 # Extra Work It Does
 The data coming from PowerDNS Recursior sends all the IP Addresses in wire format, so this program decodes them to presentation format.
 Also, for `<reasons>`, in the `dnsmessage.proto` file, the `serverIdentity` is defined as binary, not string,
