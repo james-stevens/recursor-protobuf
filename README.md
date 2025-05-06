@@ -39,7 +39,7 @@ What this program does is listen on it's input for connections from PowerDNS Rec
 to it's output, to a listening destination, to send it the `<LF>` separated JSON.
 
 I use [Vector](https://vector.dev) as the destination listener and
-I have included an [example vector.yaml](/vector.yaml) config file to show how this can be done.
+I have included an [example vector.yaml](/configs/vector.yaml) config file to show how this can be done.
 But you could use any destination that can listen on a plain (non-SSL) socket and accept `<LF>` separated JSON.
 
 Vector gives a wide range of options for enriching, filtering and exporting the data stream, so is a great tool for this use case.
