@@ -17,6 +17,7 @@ int stats_find_pid_slot(struct stats_st *stats,int max_procs,pid_t pid)
 int stats_clear_pid_slot(struct stats_st *stats,int max_procs,pid_t pid)
 {
 	int i = stats_find_pid_slot(stats,max_procs,pid);
+	logmsg(MSG_DEBUG,"STATS: Dead child %ld found at slot %d\n",pid,i);
 	if (i >= 0) stats[i].pid = 0;
 	return i;
 }
@@ -36,9 +37,9 @@ struct stats_st * stats_find_spare_slot(struct stats_st *stats,int max_procs)
 
 
 
-void stats_debug(struct stats_st *stats)
+void stats_log(loglvl_t level,struct stats_st *stats)
 {
-	logmsg(MSG_DEBUG,"stats: %d: %lu %lu %lu %lu %lu %lu\n",
+	logmsg(level,"stats: %d: bin=%lu bout=%lu pkin=%lu pkout=%lu lostb=%lu lostpk=%lu\n",
 		stats->pid,stats->in_bytes,stats->out_bytes,stats->in_pkts,stats->out_pkts,stats->lost_bytes,stats->lost_pkts);
 }
 
@@ -51,7 +52,7 @@ void stats_total(struct stats_st *total,struct stats_st *stats,int max_procs)
 	total->pid = getpid();
 	for(int i=0;i<max_procs;i++) {
 		if (!stats[i].pid) continue;
-		stats_debug(&stats[i]);
+		stats_log(MSG_DEBUG,&stats[i]);
 		total->in_bytes += stats[i].in_bytes;
 		total->out_bytes += stats[i].out_bytes;
 		total->in_pkts += stats[i].in_pkts;
@@ -68,7 +69,7 @@ void stats_write_to_prom(char * path,char * server_id,struct stats_st *stats,int
 struct stats_st total;
 
 	stats_total(&total,stats,max_procs);
-	stats_debug(&total);
+	stats_log(MSG_NORMAL,&total);
 
 	FILE * fp = fopen(path,"w");
 	if (!fp) {

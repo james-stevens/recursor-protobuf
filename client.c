@@ -178,7 +178,6 @@ int len = buf->len+buf->hdr_len;
 			if (json_len) {
 				char *p = json + json_len;
 				*p++ = '\n'; *p++ = 0;
-				printf("<%s>\n",json); fflush(stdout);
 				if (dst_sock <= 0) reconnect_socket();
 				if (dst_sock > 0) {
 					json_len++;

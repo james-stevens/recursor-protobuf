@@ -110,6 +110,7 @@ struct net_addr_st from_ni,to_ni;
 		usage(); }
 
 	time_t next_stats = now + stats_interval;
+	logmsg(MSG_NORMAL,"Running...\n");
 	while(!interupt) {
 		int ret,client_fd;
 		now = time(NULL);

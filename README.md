@@ -8,7 +8,6 @@ I'd recommend running it with `-l x200003` to surpress debugging messages
 
 Still need to do
 - check the type of rdata is an IP
-- tidy up debugging code
 
 #####################################################################
 
