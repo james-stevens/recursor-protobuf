@@ -141,7 +141,12 @@ static void fix_json_fields(PBDNSMessage * pdnsmsg,json_t *json_object)
 		uint8_t buffer[50];
 		ProtobufCBinaryData input;
 
-		json_t *json_rdata = json_object_get(json_array_item,"rdata");
+		const json_t *json_type = json_object_get(json_array_item,"type");
+		if (!json_is_integer(json_type)) continue;
+		const int rr_type = json_integer_value(json_type);
+		if ((rr_type!=T_A)&&(rr_type!=T_AAAA)) continue;
+
+		const json_t *json_rdata = json_object_get(json_array_item,"rdata");
 		const char *value_string = json_string_value(json_rdata);
 
 		input.len = base64_decode((char *)buffer,value_string,strlen(value_string));

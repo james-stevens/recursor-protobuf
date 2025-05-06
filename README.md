@@ -1,16 +1,6 @@
 # recursor-protobuf
 Decode PowerDNS Recursor's protobuf to JSON and send to Vector
 
-#####################################################################
-
-I'm still working on this, but it actually fully works right now.
-I'd recommend running it with `-l x200003` to surpress debugging messages
-
-Still need to do
-- check the type of rdata is an IP
-
-#####################################################################
-
 # Special Thanks
 Special thanks to [Oleg Efimov](https://github.com/Sannis/protobuf2json-c) for the following files
 - base64.h
