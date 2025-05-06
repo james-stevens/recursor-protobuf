@@ -7,7 +7,6 @@ I'm still working on this, but it actually fully works right now.
 I'd recommend running it with `-l x200003` to surpress debugging messages
 
 Still need to do
-- collecting metrics & writing to a Prometheus file
 - check the type of rdata is an IP
 - tidy up debugging code
 

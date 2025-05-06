@@ -65,6 +65,17 @@ static char ip6[INET6_ADDRSTRLEN+10];
 
 
 
+char * ip_socket(struct net_addr_st *ni)
+{
+	switch(ni->is_type) {
+		case 1: return ni->addr.path; break;
+		case 4: return ipchar(ni->addr.v4); break;
+		case 6: return ip6char(&ni->addr.v6); break;
+		}
+	return "UNKNOWN";
+}
+
+
 int set_blocking(int fd,int blocking)
 {
 int flags = fcntl(fd, F_GETFL);

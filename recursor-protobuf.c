@@ -99,7 +99,10 @@ struct net_addr_st from_ni,to_ni;
 	for(int i=0;i<max_procs;i++) stats[i].pid = 0;
 
 	if (!from_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_SRC_PORT);
-	if (!to_ni.is_type) decode_net_addr(&from_ni,"127.0.0.1",DEFAULT_DST_PORT);
+	if (!to_ni.is_type) decode_net_addr(&to_ni,"127.0.0.1",DEFAULT_DST_PORT);
+
+	logmsg(MSG_DEBUG,"INPUT: %s\n",ip_socket(&from_ni));
+	logmsg(MSG_DEBUG,"OUTPUT: %s\n",ip_socket(&to_ni));
 
 	int sock = tcp_server_any(&from_ni,1);
 	if (!sock) {
@@ -141,6 +144,7 @@ struct net_addr_st from_ni,to_ni;
 		close(client_fd);
 		}
 
+	stats_write_to_prom(stats_path,server_id,stats,max_procs);
 	shutdown(sock,SHUT_RDWR); close(sock);
 	if ((from_ni.is_type==1)&&(from_ni.addr.path[0]=='/')) unlink(from_ni.addr.path);
 

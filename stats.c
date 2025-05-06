@@ -29,21 +29,35 @@ struct stats_st * stats_find_spare_slot(struct stats_st *stats,int max_procs)
 	if (i < 0) return NULL;
 
 	memset(&stats[i],0,sizeof(struct stats_st));
+	logmsg(MSG_DEBUG,"STATS: putting new pid in slot %d\n",i);
 	return &stats[i];
 }
+
+
+
+
+void stats_debug(struct stats_st *stats)
+{
+	logmsg(MSG_DEBUG,"stats: %d: %lu %lu %lu %lu %lu %lu\n",
+		stats->pid,stats->in_bytes,stats->out_bytes,stats->in_pkts,stats->out_pkts,stats->lost_bytes,stats->lost_pkts);
+}
+
 
 
 
 void stats_total(struct stats_st *total,struct stats_st *stats,int max_procs)
 {
 	memset(total,0,sizeof(struct stats_st));
+	total->pid = getpid();
 	for(int i=0;i<max_procs;i++) {
-		total->in_bytes += stats->in_bytes;
-		total->out_bytes += stats->out_bytes;
-		total->in_pkts += stats->in_pkts;
-		total->out_pkts += stats->out_pkts;
-		total->lost_bytes += stats->lost_bytes;
-		total->lost_pkts += stats->lost_pkts;
+		if (!stats[i].pid) continue;
+		stats_debug(&stats[i]);
+		total->in_bytes += stats[i].in_bytes;
+		total->out_bytes += stats[i].out_bytes;
+		total->in_pkts += stats[i].in_pkts;
+		total->out_pkts += stats[i].out_pkts;
+		total->lost_bytes += stats[i].lost_bytes;
+		total->lost_pkts += stats[i].lost_pkts;
 		}
 }
 
@@ -54,8 +68,7 @@ void stats_write_to_prom(char * path,char * server_id,struct stats_st *stats,int
 struct stats_st total;
 
 	stats_total(&total,stats,max_procs);
-	logmsg(MSG_DEBUG,"stats: %lu %lu %lu %lu %lu %lu\n",
-		total.in_bytes,total.out_bytes,total.in_pkts,total.out_pkts,total.lost_bytes,total.lost_pkts);
+	stats_debug(&total);
 
 	FILE * fp = fopen(path,"w");
 	if (!fp) {
@@ -64,21 +77,21 @@ struct stats_st total;
 
 	fprintf(fp,"# HELP recursor_protobuf_in_bytes Bytes read in from PDNS Recursor\n");
 	fprintf(fp,"# TYPE recursor_protobuf_in_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_in_bytes{server_id=\"%s\"} %lu",server_id,total.in_bytes);
+	fprintf(fp,"recursor_protobuf_in_bytes{server_id=\"%s\"} %lu\n",server_id,total.in_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_out_bytes Bytes of JSON written out to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_out_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_out_bytes{server_id=\"%s\"} %lu",server_id,total.out_bytes);
+	fprintf(fp,"recursor_protobuf_out_bytes{server_id=\"%s\"} %lu\n",server_id,total.out_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_in_pkts Frames read in from PDNS Recursor\n");
 	fprintf(fp,"# TYPE recursor_protobuf_in_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_in_pkts{server_id=\"%s\"} %lu",server_id,total.in_pkts);
+	fprintf(fp,"recursor_protobuf_in_pkts{server_id=\"%s\"} %lu\n",server_id,total.in_pkts);
 	fprintf(fp,"# HELP recursor_protobuf_out_pkts JSON ojects written to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_out_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_out_pkts{server_id=\"%s\"} %lu",server_id,total.out_pkts);
+	fprintf(fp,"recursor_protobuf_out_pkts{server_id=\"%s\"} %lu\n",server_id,total.out_pkts);
 	fprintf(fp,"# HELP recursor_protobuf_lost_bytes Bytes of JSON that failed to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_lost_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_lost_bytes{server_id=\"%s\"} %lu",server_id,total.lost_bytes);
+	fprintf(fp,"recursor_protobuf_lost_bytes{server_id=\"%s\"} %lu\n",server_id,total.lost_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_lost_pkts JSON objects that failed to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_lost_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_lost_pkts{server_id=\"%s\"} %lu",server_id,total.lost_pkts);
+	fprintf(fp,"recursor_protobuf_lost_pkts{server_id=\"%s\"} %lu\n",server_id,total.lost_pkts);
 	fclose(fp);
 }
