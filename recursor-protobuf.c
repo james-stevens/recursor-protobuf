@@ -38,9 +38,10 @@ void usage()
 
 int main(int argc,char * argv[])
 {
-int max_procs = MAX_PROCESSES;
-time_t stats_interval = 30;
+char server_id[100];
 char stats_path[PATH_MAX];
+int max_procs = MAX_PROCESSES;
+time_t stats_interval = 300;
 loglvl_t level = MSG_DEBUG|MSG_NORMAL|MSG_STDOUT|MSG_HIGH|MSG_FILE_LINE;
 struct sigaction sa;
 int prevent_fork = 0;
@@ -64,12 +65,18 @@ struct net_addr_st from_ni,to_ni;
 	sa.sa_flags |= SA_RESTART;
 	sigaction(SIGHUP,&sa,NULL);
 
+	STRCPY(stats_path,"/var/run/recursor-protobuf.prom");
+	STRCPY(server_id,"recursor-protobuf");
+
 	int opt;
-	while((opt=getopt(argc,argv,"l:i:o:Dx:")) > 0)
+	while((opt=getopt(argc,argv,"n:l:i:o:Dx:t:p:")) > 0)
 		{
 		switch(opt)
 			{
 			default  : usage(); exit(-1); break;
+			case 'n' : STRCPY(server_id,optarg); break;
+			case 'p' : STRCPY(stats_path,optarg); break;
+			case 't' : stats_interval = atoi(optarg); break;
 			case 'x' : max_procs = atoi(optarg); break;
 			case 'l' : level = LEVEL(optarg); init_log(argv[0],level); break;
 			case 'D' : prevent_fork = 1; break;
@@ -104,7 +111,7 @@ struct net_addr_st from_ni,to_ni;
 		int ret,client_fd;
 		now = time(NULL);
 		if (now >= next_stats) {
-			logmsg(MSG_DEBUG,"stats:\n");
+			stats_write_to_prom(stats_path,server_id,stats,max_procs);
 			next_stats = now + stats_interval;
 			}
 

@@ -15,5 +15,6 @@ struct stats_st {
 extern int stats_find_pid_slot(struct stats_st *stats,int max_processes,pid_t pid);
 extern struct stats_st * stats_find_spare_slot(struct stats_st *stats,int max_processes);
 extern int stats_clear_pid_slot(struct stats_st *stats,int max_processes,pid_t pid);
+extern void stats_write_to_prom(char * path,char * server_id,struct stats_st *stats,int max_procs);
 
 #endif // _INCLUDE_STATS_H_
