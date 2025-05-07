@@ -66,8 +66,9 @@ Usage:
 -i <socket>       - Listen here for PDNS Recursor to connect, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)
 -o <socket>       - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)
 -l <log-level>    - see 'log_message.h' for values, preceed with 'x' to specify a hex value, 'x200001' = Normal log level to stderr
--p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`
--t <secs>         - Period in seconds to write Prometheus stats, default = 30
+-p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`, '-' for None
+-t <secs>         - Period in seconds to write Prometheus stats, default = 300
+-s <service>      - Add the tag 'service=<service>' in the Prometheus metrics file
 -D                - Debug mode, prevent forking
 ```
 
