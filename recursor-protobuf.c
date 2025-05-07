@@ -28,8 +28,9 @@ void usage()
 	puts("-i <socket>       - Listen here for PDNS Recursor to connect, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
 	puts("-o <socket>       - Connect to vector here, supports IPv4, IPv6 or Unix socket (named or anonymous/unnamed)");
 	puts("-l <log-level>    - see 'log_message.h' for values, preceed with 'x' to specify a hex value, 'x200001' = Normal log level to stderr");
-	puts("-p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`");
+	puts("-p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`, '-' for None");
 	puts("-t <secs>         - Period in seconds to write Prometheus stats, default = 30");
+	puts("-s <service>      - Add the tag 'service=<service>' in the Prometheus metrics file");
 	puts("-D                - Debug mode, prevent forking");
 	exit(1);
 }
@@ -38,7 +39,7 @@ void usage()
 
 int main(int argc,char * argv[])
 {
-char server_id[100];
+char service[100]={0};
 char stats_path[PATH_MAX];
 int max_procs = MAX_PROCESSES;
 time_t stats_interval = 300;
@@ -66,15 +67,14 @@ struct net_addr_st from_ni,to_ni;
 	sigaction(SIGHUP,&sa,NULL);
 
 	STRCPY(stats_path,"/var/run/recursor-protobuf.prom");
-	STRCPY(server_id,"recursor-protobuf");
 
 	int opt;
-	while((opt=getopt(argc,argv,"n:l:i:o:Dx:t:p:")) > 0)
+	while((opt=getopt(argc,argv,"s:l:i:o:Dx:t:p:")) > 0)
 		{
 		switch(opt)
 			{
 			default  : usage(); exit(-1); break;
-			case 'n' : STRCPY(server_id,optarg); break;
+			case 's' : STRCPY(service,optarg); break;
 			case 'p' : STRCPY(stats_path,optarg); break;
 			case 't' : stats_interval = atoi(optarg); break;
 			case 'x' : max_procs = atoi(optarg); break;
@@ -93,6 +93,8 @@ struct net_addr_st from_ni,to_ni;
 			}
 		}
 
+	if (strcmp(stats_path,"-")==0) stats_path[0] = 0;
+
 	size_t stats_sz = sizeof(struct stats_st)*max_procs;
 	struct stats_st *stats = mmap(0, stats_sz,  PROT_READ | PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	if (stats==MAP_FAILED) { logmsg(MSG_ERROR,"ERROR: mmap failed - %s\n",ERRMSG); exit(1); }
@@ -110,12 +112,13 @@ struct net_addr_st from_ni,to_ni;
 		usage(); }
 
 	time_t next_stats = now + stats_interval;
+
 	logmsg(MSG_NORMAL,"Running...\n");
 	while(!interupt) {
 		int ret,client_fd;
 		now = time(NULL);
 		if (now >= next_stats) {
-			stats_write_to_prom(stats_path,server_id,stats,max_procs);
+			stats_write_to_prom(stats_path,service,stats,max_procs);
 			next_stats = now + stats_interval;
 			}
 
@@ -145,7 +148,7 @@ struct net_addr_st from_ni,to_ni;
 		close(client_fd);
 		}
 
-	stats_write_to_prom(stats_path,server_id,stats,max_procs);
+	stats_write_to_prom(stats_path,service,stats,max_procs);
 	shutdown(sock,SHUT_RDWR); close(sock);
 	if ((from_ni.is_type==1)&&(from_ni.addr.path[0]=='/')) unlink(from_ni.addr.path);
 

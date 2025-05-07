@@ -64,35 +64,38 @@ void stats_total(struct stats_st *total,struct stats_st *stats,int max_procs)
 
 
 
-void stats_write_to_prom(char * path,char * server_id,struct stats_st *stats,int max_procs)
+void stats_write_to_prom(char * path,char * service,struct stats_st *stats,int max_procs)
 {
 struct stats_st total;
+char tags[100] = {0};
 
 	stats_total(&total,stats,max_procs);
 	stats_log(MSG_NORMAL,&total);
+	if (!path[0]) return;
 
 	FILE * fp = fopen(path,"w");
 	if (!fp) {
 		logmsg(MSG_ERROR,"ERROR: Failed to write stats file '%s' - %s\n",path,ERRMSG);
 		return; }
 
+	if (service[0]) snprintf(tags,sizeof(tags),"{service=\"%s\"}",service); else tags[0] = 0;
 	fprintf(fp,"# HELP recursor_protobuf_in_bytes Bytes read in from PDNS Recursor\n");
 	fprintf(fp,"# TYPE recursor_protobuf_in_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_in_bytes{server_id=\"%s\"} %lu\n",server_id,total.in_bytes);
+	fprintf(fp,"recursor_protobuf_in_bytes%s %lu\n",tags,total.in_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_out_bytes Bytes of JSON written out to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_out_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_out_bytes{server_id=\"%s\"} %lu\n",server_id,total.out_bytes);
+	fprintf(fp,"recursor_protobuf_out_bytes%s %lu\n",tags,total.out_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_in_pkts Frames read in from PDNS Recursor\n");
 	fprintf(fp,"# TYPE recursor_protobuf_in_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_in_pkts{server_id=\"%s\"} %lu\n",server_id,total.in_pkts);
+	fprintf(fp,"recursor_protobuf_in_pkts%s %lu\n",tags,total.in_pkts);
 	fprintf(fp,"# HELP recursor_protobuf_out_pkts JSON ojects written to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_out_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_out_pkts{server_id=\"%s\"} %lu\n",server_id,total.out_pkts);
+	fprintf(fp,"recursor_protobuf_out_pkts%s %lu\n",tags,total.out_pkts);
 	fprintf(fp,"# HELP recursor_protobuf_lost_bytes Bytes of JSON that failed to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_lost_bytes counter\n");
-	fprintf(fp,"recursor_protobuf_lost_bytes{server_id=\"%s\"} %lu\n",server_id,total.lost_bytes);
+	fprintf(fp,"recursor_protobuf_lost_bytes%s %lu\n",tags,total.lost_bytes);
 	fprintf(fp,"# HELP recursor_protobuf_lost_pkts JSON objects that failed to output\n");
 	fprintf(fp,"# TYPE recursor_protobuf_lost_pkts counter\n");
-	fprintf(fp,"recursor_protobuf_lost_pkts{server_id=\"%s\"} %lu\n",server_id,total.lost_pkts);
+	fprintf(fp,"recursor_protobuf_lost_pkts%s %lu\n",tags,total.lost_pkts);
 	fclose(fp);
 }
