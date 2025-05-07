@@ -67,12 +67,14 @@ static char ip6[INET6_ADDRSTRLEN+10];
 
 char * ip_socket(struct net_addr_st *ni)
 {
+static char addr[50];
+
 	switch(ni->is_type) {
 		case 1: return ni->addr.path; break;
-		case 4: return ipchar(ni->addr.v4); break;
-		case 6: return ip6char(&ni->addr.v6); break;
+		case 4: sprintf(addr,"%s:%d",ipchar(ni->addr.v4),ni->port); return addr; break;
+		case 6: sprintf(addr,"%s.%d",ip6char(&ni->addr.v6),ni->port); return addr; break;
 		}
-	return "UNKNOWN";
+	return "[UNKNOWN]";
 }
 
 
