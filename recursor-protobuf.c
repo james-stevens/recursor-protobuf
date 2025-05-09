@@ -31,6 +31,7 @@ void usage()
 	puts("-p <path>         - Path name to save Prometheus style metrics to, default = `/var/run/recursor-protobuf.prom`, '-' for None");
 	puts("-t <secs>         - Period in seconds to write Prometheus stats, default = 300");
 	puts("-s <service>      - Add the tag 'service=<service>' in the Prometheus metrics file");
+	puts("-x <max>          - The maximum number of child processes to record metrics for, default=200");
 	puts("-D                - Debug mode, prevent forking");
 	exit(1);
 }

@@ -21,7 +21,8 @@ extern size_t base64_decode(char *dst, const char *src, size_t src_len);
 
 extern int interupt;
 
-static struct stats_st *my_stats = NULL;
+struct stats_st buf_stats;
+static struct stats_st *my_stats = &buf_stats;
 
 struct buffer_st {
 	int len,pos,hdr_len;
@@ -217,15 +218,14 @@ int len = buf->len+buf->hdr_len;
 int run_client(int client_fd,struct net_addr_st *to_ni,struct stats_st *client_stats)
 {
 struct buffer_st buf;
-struct stats_st buf_stats;;
-
-	my_stats = (client_stats)?client_stats:&buf_stats;
-
-	memcpy(&dst_ni,to_ni,sizeof(struct net_addr_st));
-	reconnect_socket();
 
 	buf.len = buf.pos = 0;
 	buf.hdr_len = 2;
+
+	if (client_stats) my_stats = client_stats;
+
+	memcpy(&dst_ni,to_ni,sizeof(struct net_addr_st));
+	reconnect_socket();
 
 	while(!interupt) {
 		int ret;
