@@ -101,14 +101,17 @@ You will get the following metrics. All metrics are the total from all child pro
 - `recursor_protobuf_packets_out`
 - `recursor_protobuf_bytes_in`
 - `recursor_protobuf_bytes_out`
-- `recursor_protobuf_dropped_bytes`
-- `recursor_protobuf_dropped_packets`
+- `recursor_protobuf_lost_bytes`
+- `recursor_protobuf_lost_packets`
 
 All metrics are `counter` type.
 
-Dropped packets are packets received from PDNS Recursor that we were unable to write to the output receiver
+Lost packets are packets received from PDNS Recursor that we were unable to write to the output receiver
 e.g. due to it being down / connection failure or the buffer was full (congestion).
-Dropped bytes are measured in bytes of JSON, that fail to get written.
+Lost bytes are measured in bytes of JSON, that fail to get written.
+
+Lost packets & bytes does **NOT** include frames correctly read from the input that did not correctly
+decode as a `dnsmessage` protobuf.
 
 
 ## This is where the `proto` file came from
