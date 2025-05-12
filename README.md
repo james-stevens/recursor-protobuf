@@ -95,6 +95,12 @@ a location of your choice at an interval of your choice.
 You can then export this file to Prometheus using [Prometheus node_exporter](https://github.com/prometheus/node_exporter)
 or a simple HTTPD server like `busybox httpd`.
 
+You can have a tag `service` added to each Prometheus metric by adding the option `-s <name>` for the service name, or you can directly 
+specify a comma separated list of tags. NOTE: values must be in double quotes, e.g. `-s 'service="recursor",client="some name"'
+
+if you use `-s <name>` but try and include `=` in the service name you will make a mess of the metrics file!
+
+
 ### Metrics
 You will get the following metrics. All metrics are the total from all child process, i.e. all PDNS Recursor threads that make a connection.
 - `recursor_protobuf_packets_in`

@@ -67,7 +67,7 @@ void stats_total(struct stats_st *total,struct stats_st *stats,int max_procs)
 void stats_write_to_prom(char * path,char * service,struct stats_st *stats,int max_procs)
 {
 struct stats_st total;
-char tags[100] = {0};
+char tags[1000] = {0};
 
 	stats_total(&total,stats,max_procs);
 	stats_log(MSG_NORMAL,&total);
@@ -78,7 +78,13 @@ char tags[100] = {0};
 		logmsg(MSG_ERROR,"ERROR: Failed to write stats file '%s' - %s\n",path,ERRMSG);
 		return; }
 
-	if (service[0]) snprintf(tags,sizeof(tags),"{service=\"%s\"}",service); else tags[0] = 0;
+	if (service[0]) {
+		if (strchr(service,'=')!=NULL)
+			snprintf(tags,sizeof(tags),"{%s}",service);
+		else
+			snprintf(tags,sizeof(tags),"{service=\"%s\"}",service);
+		}
+
 	fprintf(fp,"# HELP recursor_protobuf_in_bytes Bytes read in from PDNS Recursor\n");
 	fprintf(fp,"# TYPE recursor_protobuf_in_bytes counter\n");
 	fprintf(fp,"recursor_protobuf_in_bytes%s %lu\n",tags,total.in_bytes);
